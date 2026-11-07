@@ -1,0 +1,71 @@
+# dsh-stack
+
+一个 DSH 插件，做三件事：
+
+1. **「DS Stack 模式」agent preset** —— 在官方 `ptc` 预设上加一层：工作纪律人设 + 自动触发规则。
+2. **8 个常驻 ds-* 技能** —— 作为技能 provider 注册（rank 600），散装副本缺失时兜底。
+3. **一套可搬走的安装器** —— 复制目录 + 跑一条命令，重启即生效；不写注册表，不改系统。
+
+## 它每轮注入什么
+
+`presets/persona.txt` 的全部内容会作为 system prompt 前缀注入每一轮。当前是 6 行工作纪律 + 4 条自动触发规则：
+
+| 命中 | 动作 |
+|---|---|
+| 修 bug | `ds-tdd` 先写一条会失败的测试 → `ds-verify-loop` 跑到绿；同一命令两轮不绿转 `ds-unstick` |
+| 结构改动（新模块/新接口/签名未定） | `grill` 问透（没有 grill 就一次一问、能查的自己查）→ `ds-blueprint` 定形状；两条成对，不单独用 |
+| 需要审视 | `ds-jury`；`ds-review-loop`、`ds-lessons` 只在点名时用 |
+| 任何时候 | 不使用 `ds-explain` |
+
+## 结构
+
+| 文件 | 作用 |
+|---|---|
+| [cordis.patch.yml](cordis.patch.yml) | bundle 层：由 [scripts/build-bundle.mjs](scripts/build-bundle.mjs) 从官方 **ptc** 预设生成，插入 `preset-ds-stack` |
+| [lib/index.js](lib/index.js) | 技能 provider：`inject: ["skills"]`，注册 `assets/skills/*/SKILL.md`，rank 600 |
+| [assets/skills/](assets/skills) | 8 个常驻技能 |
+| [presets/persona.txt](presets/persona.txt) | 模式人设 + 自动触发规则，每轮注入 |
+| [skills.manifest.json](skills.manifest.json) | 8 条 sha256 + 21 个不常驻项 + 优先级阶梯 |
+| [RESIDENT.md](RESIDENT.md) | 人读的常驻清单与触发规则表 |
+| [scripts/install.mjs](scripts/install.mjs) | 注册成 profile bundle（Windows 用 junction，其它平台复制目录） |
+| [scripts/build-bundle.mjs](scripts/build-bundle.mjs) | 生成 bundle，带逐字节反向校验；基底可切：`DS_STACK_BASE=standard` |
+
+## 安装 / 卸载
+
+```bash
+node scripts/install.mjs --check                 # 只报告，不动任何文件
+node scripts/install.mjs --apply  --profile <名字>  # 注册到某个 profile
+node scripts/install.mjs --remove --profile <名字>  # 撤销
+```
+
+`--apply` 写三处（各留 `.bak-<时间戳>`）：profile 的 `package.json` 依赖、`dsh.profile.bundles`、`node_modules/dsh-stack` 链接（Windows 建 junction，其它平台复制目录）。重启 DSH，在模式选择里选「DS Stack 模式」。
+
+## 搬到另一台机器 / 手机
+
+整个目录是自包含的，没有绝对路径依赖（`cordis.patch.yml` 已生成好，不需要重新构建）：
+
+1. 把 `dsh-stack/` 整个目录复制过去，放在任意位置。
+2. `node <目录>/scripts/install.mjs --apply --profile <profile 名>`
+3. 重启 DSH，选「DS Stack 模式」。
+
+前置条件：`grill` 技能可选（没有它时规则会退化成「一次一问、能查的自己查」）；`ds-*` 散装副本不是必需的，常驻那 8 个由本包自带。
+
+**目标机器自己跑 DSH 内核（例如手机）时，多一步**：先 `node scripts/build-bundle.mjs` 用**那台机器**的基底预设重新生成 `cordis.patch.yml`（脚本会自己找 DSH 安装根，找不到就打印候选并提示用 `DSH_APP_ROOT` 指过去），再装。电脑上生成的 patch 直接搬过去，版本不一致时可能引用不存在的插件行。
+
+工作区不共享：`@路径` 解析的是目标机器自己的工作区，要引用别处的文件，先复制进去。
+
+## 覆盖关系
+
+```
+project .dsh 100 < project .agents 200 < custom 300 < ~/.dsh/skills 400 < ~/.agents/skills 500 < 本插件 600
+```
+
+数字小的赢，本地同名散装副本优先，插件只保证「缺了也还在」。想反过来压本地，把 `lib/index.js` 的 `RANK` 改到 500 以下。
+
+## 边界
+
+- 常驻技能正文口径：`description` ≤180 字符、单卷正文 ≤2000 字符。
+- 不常驻的 21 个仍在 `~/.agents/skills`，需要时自动匹配加载；本插件不负责它们的存在性。
+- `~/.agents/skills` 里的同名散装副本 rank 500，压过本包 600：本包改了正文、散装不动，运行时读到的还是旧副本。两边要一起改。
+- DSH 升级后基底预设变了，要重跑 `node scripts/build-bundle.mjs` 再重启（需要本机有官方 `ptc.patch.yml`）。
+- 技能正文是上游原文；示例路径要换成本机真实路径。

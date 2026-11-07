@@ -1,0 +1,57 @@
+dsh-stack 0.4.0 —— DS Stack 模式插件
+=========================================
+
+这个插件给 DSH 内核加一个 agent 模式：每轮注入工作纪律 + 4 条自动触发规则，
+并自带 8 个常驻 ds-* 技能。包内 cordis.patch.yml 已生成，不需要重新构建。
+
+
+装法 A（目标机器有 node，推荐）
+--------------------------------
+1. 解压到任意目录
+2. node scripts/install.mjs --check                      应输出 resident skills: 8
+3. node scripts/install.mjs --apply  --profile <profile 名>
+4. node scripts/install.mjs --verify --profile <profile 名>   应全 PASS，最后一行 verify: ok
+5. 重启 DSH，模式选择里选「DS Stack 模式」
+
+装法 B（没有 node）
+-------------------
+1. 把整个目录复制到 <profile>/node_modules/dsh-stack
+2. 编辑 <profile>/package.json：
+   dependencies 里加   "dsh-stack": "file:<该目录的绝对路径>"
+   dsh.profile.bundles 数组里加   "dsh-stack"
+3. 重启 DSH
+
+### 手机上（自己跑 DSH 内核）
+
+手机上的 DSH 是独立内核，工作区在手机上，跟这台机器没有共享目录。所以：
+
+1. **先重新生成 bundle**。包里的 `cordis.patch.yml` 是在电脑上按官方 ptc 预设生成的，手机上的 DSH 版本不同时，它引用的插件行可能对不上：
+   ```bash
+   node scripts/build-bundle.mjs        # 自动找本机 DSH 根；找不到会打印候选并让你用 DSH_APP_ROOT 指过去
+   node scripts/build-bundle.mjs --check
+   ```
+2. 再按上面的 A/B 装法安装。
+3. 装完跑 `--verify`。
+4. 重启 DSH → 选「DS Stack 模式」。
+
+**引用文件**：`@路径` 解析的是**手机内核自己**的工作区。要引用电脑上的文件，先把它们复制进手机的工作区（这个包解压进工作区即可），再写 `@<相对路径>`。含空格用 `@"..."`，目录带尾斜杠。
+
+装完怎么确认
+-------------
+- 先跑 node scripts/install.mjs --verify --profile <profile 名>：
+  它逐条检查 profile 里是否真有依赖、bundle、node_modules 副本，以及包内 bundle 是否带规则；缺哪条会打印 FAIL 并以退出码 1 结束。
+- <profile>/package.json 的 dsh.profile.bundles 含 dsh-stack
+- 重启后新会话的系统提示里应出现「自动触发（命中就执行，不用用户点名）」和 4 条规则
+- 模式列表里没有「DS Stack 模式」时，先确认上面两处真的写进去了，再看 DSH 日志
+
+依赖
+-----
+- DSH 内核。cordis.patch.yml 是从官方 ptc 预设生成的，随包携带。
+- grill 技能：可选。没有它时，「结构改动」那条规则会退化成「一次一问、能查的自己查」。
+
+卸载
+-----
+node scripts/install.mjs --remove --profile <profile 名>
+（会还原 package.json 的依赖与 bundles，并删掉 node_modules 里的链接或复制目录）
+
+更多：CHECKLIST.md（做什么 / 调用什么 / 验证记录）、README.md、RESIDENT.md

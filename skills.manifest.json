@@ -1,0 +1,68 @@
+{
+  "purpose": "resident skill baseline for the ds-stack pack: keeps a chosen subset present in a profile regardless of what ~/.agents/skills contains, and carries the mode's auto-trigger rules.",
+  "source": "aicodeking/deepseek-stack (github), upstream snapshot installed 2026-11-02",
+  "curated": "2026-11-03: 29 -> 16 -> 8 (general work discipline only).",
+  "curatedBodies": "2026-11-03 (second pass): descriptions <=180, bodies <=2000; detail for ds-mode / ds-plan-loop / ds-unstick moved to each skill's references/.",
+  "residentSince": "2026-11-05: 8 -> 9 (ds-context-reset, for long unattended runs) -> 8 (ds-explain removed: the mode rules say it is not used).",
+  "rules": "presets/persona.txt carries the auto-trigger rules that ship with this mode: bug fix -> ds-tdd then ds-verify-loop; structural change -> grill then ds-blueprint; review -> ds-jury; no ds-explain.",
+  "rank": 600,
+  "precedence": "lower wins: project .dsh 100 < project .agents 200 < custom 300 < ~/.dsh/skills 400 < ~/.agents/skills 500 < this package 600",
+  "semantics": "overlay: a loose copy of the same name always wins; this package keeps the skill resident when the loose copy is missing",
+  "skills": [
+    {
+      "name": "ds-blast-radius",
+      "sha256": "b97e4d6c3a93cb79d3db89acaeff7feaae8038f7117cb5a25095125cc9eda598"
+    },
+    {
+      "name": "ds-context-reset",
+      "sha256": "174f0fb6229a6811a6553db4719f95df731e48ed572d3cb9c5f6955d1337ab3e"
+    },
+    {
+      "name": "ds-mode",
+      "sha256": "1c7d54f4431a62c00de63eed333d7a19275385c5a409c7373d2c0b5e06a3b659"
+    },
+    {
+      "name": "ds-plan-loop",
+      "sha256": "aabb0d29b3b28828dfb517ac69c1729cbb3b362d67edca5aae4c98b64eacb9dd"
+    },
+    {
+      "name": "ds-principles",
+      "sha256": "d372588d90da64896c6a24897171d0501326d60cc6e190e9ab989bfaac3b0105"
+    },
+    {
+      "name": "ds-tdd",
+      "sha256": "487ba4dcd97facf2b03d620f76576699f696bb22cf66428cce1dbee7b03ddb0a"
+    },
+    {
+      "name": "ds-unstick",
+      "sha256": "a4052d1b3bbf3f1a02f331d04f07faa583b2be9ef490b64e1ab3719ec20485e2"
+    },
+    {
+      "name": "ds-verify-loop",
+      "sha256": "9f5ad15b22f15c1a21f6651499c820182beb4f25468811614e38ef73bced0ea0"
+    }
+  ],
+  "notResident": [
+    "ds-adopt",
+    "ds-best-of-n",
+    "ds-blueprint",
+    "ds-catchup",
+    "ds-design",
+    "ds-design-audit",
+    "ds-explain",
+    "ds-help",
+    "ds-jury",
+    "ds-ledger",
+    "ds-lessons",
+    "ds-pr",
+    "ds-pr-comments",
+    "ds-ready",
+    "ds-review-loop",
+    "ds-revive",
+    "ds-sharpen",
+    "ds-ship",
+    "ds-swarm",
+    "ds-unslop",
+    "ds-watch-pr"
+  ]
+}
