@@ -5,6 +5,9 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
+// 守卫会往 $DSH_HOME/dsh-stack/guard.log 记账；测试必须指向临时目录，别写进用户真实日志。
+process.env.DSH_HOME = mkdtempSync(join(tmpdir(), "dsh-guard-tests-"));
+
 const call = (turn, callId, name, args) => ({
   type: "tool/call",
   data: { turn, step: 1, callId, name, arguments: JSON.stringify(args) },
