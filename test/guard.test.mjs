@@ -239,13 +239,34 @@ test("推送过：提醒影响面、证据和 PR 可读性", () => {
   assert.match(text, /ds-pr/);
 });
 
-test("一轮改了 5 个不同文件：提醒先出计划", () => {
+test("一轮改了 6 个代码文件：提醒先出计划", () => {
   const events = [ptcCall(1, "r1")];
-  for (const i of [1, 2, 3, 4, 5]) events.push(dispatch("r1", "edit", { file_path: "/tmp/f" + i + ".js" }));
+  for (const i of [1, 2, 3, 4, 5, 6]) events.push(dispatch("r1", "edit", { file_path: "/tmp/f" + i + ".js" }));
   const a = analyzeTurn(events, 1);
+  assert.equal(a.mutatedCode.length, 6);
+  assert.match(scopeNotice(a.mutatedCode.length), /6 个代码文件/);
+  assert.match(scopeNotice(a.mutatedCode.length), /ds-plan-loop/);
+});
+
+test("成批写文档不算扩散：5 个 md 不进 scope", () => {
+  const events = [ptcCall(1, "r1")];
+  for (const i of [1, 2, 3, 4, 5]) events.push(dispatch("r1", "write", { file_path: "/tmp/doc" + i + ".md" }));
+  const a = analyzeTurn(events, 1);
+  assert.equal(a.mutatedCode.length, 0);
   assert.equal(a.mutatedAll.length, 5);
-  assert.match(scopeNotice(a.mutatedAll.length), /5 个不同文件/);
-  assert.match(scopeNotice(a.mutatedAll.length), /ds-plan-loop/);
+});
+
+test("临时仓库探针的 push 不算交付", () => {
+  const events = [
+    ptcCall(1, "r1"),
+    dispatch("r1", "bash", { command: "d=$(mktemp -d); git init --bare $d/r.git; git push $d/r.git" }),
+  ];
+  assert.equal(analyzeTurn(events, 1).pushes, 0);
+});
+
+test("真推送仍然算交付", () => {
+  const events = [ptcCall(1, "r1"), dispatch("r1", "bash", { command: "git push -u origin feat/x" })];
+  assert.equal(analyzeTurn(events, 1).pushes, 1);
 });
 
 test("pre-step 在推送后会注入 delivery 检查点", async () => {

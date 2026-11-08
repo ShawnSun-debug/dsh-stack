@@ -19,7 +19,8 @@
     "scripts/install.mjs",
     "scripts/build-bundle.mjs",
     "README.md",
-    "test"
+    "test",
+    "scripts/guard-replay.mjs"
   ],
   "license": "MIT",
   "private": true,
@@ -29,6 +30,7 @@
     }
   },
   "scripts": {
-    "test": "node --test test/guard.test.mjs"
+    "test": "node --test test/guard.test.mjs",
+    "replay": "node scripts/guard-replay.mjs"
   }
 }
