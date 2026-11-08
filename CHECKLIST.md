@@ -11,6 +11,7 @@
 | 1 | 往 system prompt 每轮注入一段工作纪律 + 自动触发规则 | `presets/persona.txt` → 由 `cordis.patch.yml` 注入 preset |
 | 2 | 注册 8 个 ds-* 技能（rank 600，散装副本 rank 500 优先，本包兜底） | `lib/index.js` + `assets/skills/` |
 | 3 | 提供一条命令的安装/卸载（Windows junction，其它平台复制目录） | `scripts/install.mjs` |
+| 4 | 守卫：改完没验证 / 同一修法连错两次，在 pre-step 提醒、轮末 steer 兜底 | `lib/guard.js`（`npm test`） |
 
 它**不**做的事：不改 DSH 源码、不写注册表、不替用户改 `~/.agents/skills`、不自动安装别的插件。
 

@@ -4,7 +4,8 @@
 
 1. **「DS Stack 模式」agent preset** —— 在官方 `ptc` 预设上加一层：工作纪律人设 + 自动触发规则。
 2. **8 个常驻 ds-* 技能** —— 作为技能 provider 注册（rank 600），散装副本缺失时兜底。
-3. **一套可搬走的安装器** —— 复制目录 + 跑一条命令，重启即生效；不写注册表，不改系统。
+3. **守卫** —— 把两条最容易漂的规则变成机制：改完没验证、同一修法连错两次。
+4. **一套可搬走的安装器** —— 复制目录 + 跑一条命令，重启即生效；不写注册表，不改系统。
 
 ## 它每轮注入什么
 
@@ -22,7 +23,9 @@
 | 文件 | 作用 |
 |---|---|
 | [cordis.patch.yml](cordis.patch.yml) | bundle 层：由 [scripts/build-bundle.mjs](scripts/build-bundle.mjs) 从官方 **ptc** 预设生成，插入 `preset-ds-stack` |
-| [lib/index.js](lib/index.js) | 技能 provider：`inject: ["skills"]`，注册 `assets/skills/*/SKILL.md`，rank 600 |
+| [lib/index.js](lib/index.js) | 技能 provider：`inject: ["skills"]`，注册 `assets/skills/*/SKILL.md`，rank 600；装上守卫 |
+| [lib/guard.js](lib/guard.js) | 守卫：`agent/pre-step` 前置提醒 + `agent/turn-stopping` 兜底 |
+| [test/guard.test.mjs](test/guard.test.mjs) | 守卫的 15 个用例（`npm test`） |
 | [assets/skills/](assets/skills) | 8 个常驻技能 |
 | [presets/persona.txt](presets/persona.txt) | 模式人设 + 自动触发规则，每轮注入 |
 | [skills.manifest.json](skills.manifest.json) | 8 条 sha256 + 21 个不常驻项 + 优先级阶梯 |
@@ -53,6 +56,23 @@ node scripts/install.mjs --remove --profile <名字>  # 撤销
 **目标机器自己跑 DSH 内核（例如手机）时，多一步**：先 `node scripts/build-bundle.mjs` 用**那台机器**的基底预设重新生成 `cordis.patch.yml`（脚本会自己找 DSH 安装根，找不到就打印候选并提示用 `DSH_APP_ROOT` 指过去），再装。电脑上生成的 patch 直接搬过去，版本不一致时可能引用不存在的插件行。
 
 工作区不共享：`@路径` 解析的是目标机器自己的工作区，要引用别处的文件，先复制进去。
+
+## 守卫：规则不靠自觉
+
+persona 的规则是散文，长会话里会漂。守卫在两个点上看本回合的会话日志：
+
+| 触发点 | 什么时候 | 做什么 |
+|---|---|---|
+| `agent/pre-step` | 模型每一次开口之前 | 改了非文档文件、其后没有成功的 `bash`/`pwsh` → 在这一步的消息末尾追加一条 checkpoint |
+| `agent/turn-stopping` | 模型仍要收尾 | 同样的状态 → `steer` 一句，让回合再走一步去补验证 |
+
+同一判定还有一条「连续 2 次工具调用失败 → 换前提」的分支。
+
+两种工具形态都认：直接调用的 `write`/`edit`/`bash`，以及 PTC 模式下 `run_code` 程序里的内层调用（`tool/ptc-dispatch`，自带 `isError`，用 `rootCallId` 找回回合）。`run_code` 自己的外层结果不算证据——它只是整段程序的汇总。
+
+边界：每回合最多 2 条（pre-step 1 + 轮末 1）；只改 `.md/.txt/.rst` 等文档时豁免；守卫自己抛错只 `warn` 一次，绝不打断回合。
+
+为什么不是只在轮末：`dsh-agent-loop` 先跑 `step()`（助手消息已推送），再跑 `turn-stopping`；轮末只能补一句，收不回已经发出去的结论。
 
 ## 覆盖关系
 

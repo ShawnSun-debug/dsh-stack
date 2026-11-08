@@ -8,12 +8,27 @@
     ".": "./lib/index.js",
     "./package.json": "./package.json"
   },
-  "files": ["lib/index.js", "assets/skills", "skills.manifest.json", "cordis.patch.yml", "RESIDENT.md", "CHECKLIST.md", "INSTALL.txt", "scripts/install.mjs", "scripts/build-bundle.mjs", "README.md"],
+  "files": [
+    "lib",
+    "assets/skills",
+    "skills.manifest.json",
+    "cordis.patch.yml",
+    "RESIDENT.md",
+    "CHECKLIST.md",
+    "INSTALL.txt",
+    "scripts/install.mjs",
+    "scripts/build-bundle.mjs",
+    "README.md",
+    "test"
+  ],
   "license": "MIT",
   "private": true,
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
+  },
+  "scripts": {
+    "test": "node --test test/guard.test.mjs"
   }
 }
