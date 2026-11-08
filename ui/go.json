@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "composer": {
+    "quickActions": [
+      {
+        "label": "解释",
+        "action": {
+          "type": "send",
+          "text": "解释一下上面这段代码怎么跑的"
+        }
+      },
+      {
+        "label": "审阅",
+        "action": {
+          "type": "send",
+          "text": "审一下上面这个改动"
+        }
+      },
+      {
+        "label": "发出",
+        "action": {
+          "type": "send",
+          "text": "把这次改动发出去"
+        }
+      },
+      {
+        "label": "进度",
+        "action": {
+          "type": "send",
+          "text": "现在到哪了"
+        }
+      }
+    ]
+  },
+  "emptyState": {
+    "suggestions": [
+      {
+        "title": "跑一遍测试",
+        "subtitle": "全部用例，跑完给我结果",
+        "action": {
+          "type": "send",
+          "text": "跑一遍 dsh-stack 的全部测试，把结果告诉我"
+        }
+      },
+      {
+        "title": "看远端有没有落后",
+        "subtitle": "本地与 main 比对，列出差异",
+        "action": {
+          "type": "send",
+          "text": "看一下 dsh-stack 本地和远端 main 有没有差异"
+        }
+      },
+      {
+        "title": "继续上次的活",
+        "subtitle": "读 PROGRESS.md，从下一步接着做",
+        "action": {
+          "type": "send",
+          "text": "读一下 PROGRESS.md，从下一步接着做"
+        }
+      },
+      {
+        "title": "报一下状态",
+        "subtitle": "版本、测试、远端、守卫最近触发",
+        "action": {
+          "type": "send",
+          "text": "报一下现在的状态：插件版本、测试结果、远端是否落后、守卫最近触发几次"
+        }
+      }
+    ]
+  }
+}

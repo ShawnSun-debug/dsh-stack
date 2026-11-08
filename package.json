@@ -1,6 +1,6 @@
 {
   "name": "dsh-stack",
-  "version": "0.7.2",
+  "version": "0.8.0",
   "description": "Resident skill baseline for the ds-stack pack: keeps 8 curated ds-* skills present in a profile (local loose copies still win).",
   "type": "module",
   "main": "lib/index.js",
@@ -23,13 +23,18 @@
     "scripts/guard-replay.mjs",
     "docs/mapping.md",
     "CHANGELOG.md",
-    "presets"
+    "presets",
+    "ui"
   ],
   "license": "MIT",
   "private": true,
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "go": {
+      "ui": "./ui/go.json",
+      "minAppVersion": "1.0.13"
     }
   },
   "scripts": {

@@ -61,6 +61,14 @@ node scripts/install.mjs --remove --profile <名字>  # 撤销
 
 工作区不共享：`@路径` 解析的是目标机器自己的工作区，要引用别处的文件，先复制进去。
 
+## 手机界面（dsh-go）
+
+插件自带 `ui/go.json`：输入框上方 4 颗胶囊（解释 / 审阅 / 发出 / 进度）和新对话页 4 张建议卡。
+`install.mjs --apply` 会把它们并进 `$DSH_HOME/dsh-go/ui.json`；`--remove` 只拿走自己那几项，你手工加的不会被删。
+识别按动作（`send` 的文本）而不是标签，所以改标签不会重复插入。
+
+`package.json` 里声明适配：`dsh.go.ui = ./ui/go.json`、`minAppVersion = 1.0.13`。
+
 ## 按意图调推理强度
 
 模式会在回合第一步看你说的话，决定要想多深（只改 effort，不插提示）：

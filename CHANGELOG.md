@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 0.8.0 — 2026-11-08
+
+- 带 dsh-go 界面：插件自带 `ui/go.json`（4 颗胶囊 + 4 张新对话建议卡），安装时自动并进 `$DSH_HOME/dsh-go/ui.json`，卸载时只拿走自己那几项。
+- 合并幂等，用户自己加的胶囊/建议卡原样保留（按动作而不是标签识别）。
+- `package.json` 声明适配：`dsh.go.ui` + `minAppVersion: 1.0.13`。
+- 胶囊从 5 颗减回 4 颗：5 颗会把输入框那一行撑到出现遮挡。
+- 用例 40 → 45（新增 lib/go-ui.mjs 的合并/移除用例）。
+
 ## 0.7.2 — 2026-11-08
 
 - 修打包：`files` 里缺 `presets/`，tarball 里没有 `presets/persona.txt`，拿到包的人无法重建 bundle、也改不了人设。

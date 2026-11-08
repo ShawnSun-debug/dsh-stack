@@ -3,7 +3,8 @@ dsh-stack 0.5.0 —— DS Stack 模式插件
 
 这个插件给 DSH 内核加一个 agent 模式：每轮注入两层规则（10 条每轮必守 + 4 行任务索引，
 覆盖全部 29 个 ds-* 技能），并自带 8 个常驻技能；另有 5 条守卫做机械检查。
-每一条技能落在哪，见 docs/mapping.md。包内 cordis.patch.yml 已生成，不需要重新构建。
+每一条技能落在哪，见 docs/mapping.md。
+安装时还会把 ui/go.json 并进 dsh-go 的界面配置（胶囊与建议卡），卸载时只移除这几项。包内 cordis.patch.yml 已生成，不需要重新构建。
 
 
 装法 A（目标机器有 node，推荐）

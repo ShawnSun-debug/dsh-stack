@@ -15,6 +15,7 @@
  * 若还留着早期手写的 row 会被移除，避免同一 provider 注册两次。
  */
 import { existsSync, readFileSync, writeFileSync, copyFileSync, mkdirSync, symlinkSync, unlinkSync, readdirSync, lstatSync, cpSync, rmSync } from "node:fs";
+import { mergeGoUi, stripGoUi } from "../lib/go-ui.mjs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -24,6 +25,62 @@ const PKG_NAME = "dsh-stack";
 const LEGACY_BEGIN = "# >>> dsh-stack (managed by dsh-stack/scripts/install.mjs) >>>";
 const LEGACY_END = "# <<< dsh-stack <<<";
 const SKILLS_DIR = join(HERE, "assets", "skills");
+const GO_UI = join(HERE, "ui", "go.json");
+const DSH_HOME = process.env.DSH_HOME || join(homedir(), ".dsh");
+
+/** dsh-go 的界面文件；插件只并自己那几项，用户改过的东西不动。 */
+const goUiPath = () => join(DSH_HOME, "dsh-go", "ui.json");
+const readJson = (file) => {
+  try {
+    return JSON.parse(readFileSync(file, "utf8"));
+  } catch {
+    return undefined;
+  }
+};
+
+function applyGoUi() {
+  if (!existsSync(GO_UI)) return;
+  const fragment = readJson(GO_UI);
+  if (fragment === undefined) {
+    console.log("ui: 片段读不了，跳过");
+    return;
+  }
+  const file = goUiPath();
+  const exists = existsSync(file);
+  const existing = exists ? readJson(file) : undefined;
+  if (exists && existing === undefined) {
+    console.log("ui: 现有 " + file + " 不是合法 JSON，跳过（没动它）");
+    return;
+  }
+  const { ui, added } = mergeGoUi(existing, fragment);
+  if (added === 0) {
+    console.log("ui: 已经是合并状态，无需改动");
+    return;
+  }
+  if (exists) backup(file);
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, JSON.stringify(ui, null, 2) + "\n");
+  console.log("ui: 合并到 " + file + "，新增 " + added + " 项");
+}
+
+function removeGoUi() {
+  const file = goUiPath();
+  if (!existsSync(file) || !existsSync(GO_UI)) return;
+  const fragment = readJson(GO_UI);
+  const existing = readJson(file);
+  if (fragment === undefined || existing === undefined) {
+    console.log("ui: 读不了，跳过（没动它）");
+    return;
+  }
+  const { ui, removed } = stripGoUi(existing, fragment);
+  if (removed === 0) {
+    console.log("ui: 没有本插件的项，跳过");
+    return;
+  }
+  backup(file);
+  writeFileSync(file, JSON.stringify(ui, null, 2) + "\n");
+  console.log("ui: 移除 " + removed + " 项");
+}
 
 const argv = process.argv.slice(2);
 const mode = argv[0] || "--check";
@@ -145,6 +202,7 @@ if (mode === "--apply") {
     }
   }
   stripLegacyRow();
+  applyGoUi();
   console.log("done: restart DSH, then look for dsh-stack in the plugin inventory");
 } else {
   const pkg = readProfile();
@@ -170,4 +228,5 @@ if (mode === "--apply") {
     else rmSync(LINK_DIR, { recursive: true, force: true });
     console.log("link: removed");
   }
+  removeGoUi();
 }
