@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.8.1 — 2026-11-08
+
+- 电脑端不受影响：安装器只在 `$DSH_HOME/dsh-go` 已存在时才写界面配置；没有 dsh-go 的机器直接跳过，连目录都不建。
+- 桌面加载器只读 `dsh.bundle.patch` 与 `dsh.bundle.platforms`（不写即全平台），`dsh.go` 是未知字段，被忽略。
+
 ## 0.8.0 — 2026-11-08
 
 - 带 dsh-go 界面：插件自带 `ui/go.json`（4 颗胶囊 + 4 张新对话建议卡），安装时自动并进 `$DSH_HOME/dsh-go/ui.json`，卸载时只拿走自己那几项。

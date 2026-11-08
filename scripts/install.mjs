@@ -40,6 +40,11 @@ const readJson = (file) => {
 
 function applyGoUi() {
   if (!existsSync(GO_UI)) return;
+  // 电脑上没装 dsh-go：不创建它的目录，也不写它的文件。
+  if (!existsSync(join(DSH_HOME, "dsh-go"))) {
+    console.log("ui: 这台机器没有 dsh-go，跳过界面配置");
+    return;
+  }
   const fragment = readJson(GO_UI);
   if (fragment === undefined) {
     console.log("ui: 片段读不了，跳过");
