@@ -24,7 +24,7 @@
 | [cordis.patch.yml](cordis.patch.yml) | bundle 层：由 [scripts/build-bundle.mjs](scripts/build-bundle.mjs) 从官方 **ptc** 预设生成，插入 `preset-ds-stack` |
 | [lib/index.js](lib/index.js) | 技能 provider：`inject: ["skills"]`，注册 `assets/skills/*/SKILL.md`，rank 600；装上守卫 |
 | [lib/guard.js](lib/guard.js) | 守卫：`agent/pre-step` 前置提醒 + `agent/turn-stopping` 兜底 |
-| [test/guard.test.mjs](test/guard.test.mjs) | 守卫的 21 个用例（`npm test`） |
+| [test/guard.test.mjs](test/guard.test.mjs) | 守卫的 26 个用例（`npm test`） |
 | [scripts/guard-replay.mjs](scripts/guard-replay.mjs) | 按步回放真实会话，量每条规则会响几次（`npm run replay`） |
 | [assets/skills/](assets/skills) | 8 个常驻技能 |
 | [presets/persona.txt](presets/persona.txt) | 模式人设 + 自动触发规则，每轮注入 |
@@ -66,7 +66,7 @@ persona 的规则是散文，长会话里会漂。守卫在两个点上看本回
 | `agent/pre-step` | 模型每一次开口之前 | 命中规则 → 在这一步的消息末尾追加一条 checkpoint |
 | `agent/turn-stopping` | 模型仍要收尾 | 同样的判定 → `steer` 一句，让回合再走一步 |
 
-四条规则：改了非文档文件却没有成功的检查（ds-verify-loop）；连续 2 次工具调用失败（ds-unstick）；本回合真推送 / 开了 PR（ds-blast-radius + ds-pr，临时仓库探针不算）；一轮成功改了 6 个以上代码文件（ds-plan-loop，文档和配置成批写不算）。每回合最多 2 条。
+五条规则：改了非文档文件却没有成功的检查（ds-verify-loop）；连续 2 次工具调用失败（ds-unstick）；本回合真推送 / 开了 PR（ds-blast-radius + ds-pr，临时仓库探针不算）；一轮成功改了 6 个以上代码文件（ds-plan-loop，文档和配置成批写不算）；会话很长却没写过 PROGRESS.md（ds-context-reset，每会话一次，走独立通道，不占回合预算）。前四条每回合最多 2 条。
 
 先量再改：`npm run replay` 会把一个真实会话按步回放，输出每条规则会响几次；`node scripts/guard-replay.mjs --all` 跑全部历史会话。改动规则前先看这个数。
 

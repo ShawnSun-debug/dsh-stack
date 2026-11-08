@@ -21,7 +21,7 @@
 
 第二层「按任务触发」4 行索引：发出去（ship/ready/pr/pr-comments/watch-pr）、多人看（jury/review-loop）、并行与赌错（swarm/best-of-n）、接手与状态（adopt/revive/catchup）。
 
-守卫再把能机械检查的部分接住：缺证据、连续失败、真推送后、代码文件改太多（6 个以上，文档不算）。规则改动前先用 scripts/guard-replay.mjs 量一遍历史会话（70 回合的基线：evidence 9、unstick 1、delivery 7、scope 18）。
+守卫再把能机械检查的部分接住：缺证据、连续失败、真推送后、代码文件改太多（6 个以上，文档不算）、长会话没写 PROGRESS.md（每会话一次，独立通道）。规则改动前先用 scripts/guard-replay.mjs 量一遍历史会话（71 回合的基线：unstick 1、evidence 9、delivery 7、scope 18、context 3）。
 ## 三、它提供的技能（8 个常驻）
 
 | 技能 | 做什么 | 什么时候出现 |

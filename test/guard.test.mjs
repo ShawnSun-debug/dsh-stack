@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { analyzeTurn, installGuard, onlyDocumentation, evidenceNotice, deliveryNotice, scopeNotice } from "../lib/guard.js";
+import { analyzeTurn, decideRule, installGuard, onlyDocumentation, needsContextReset, evidenceNotice, deliveryNotice, scopeNotice, wroteProgressFile } from "../lib/guard.js";
 
 const call = (turn, callId, name, args) => ({
   type: "tool/call",
@@ -280,4 +280,63 @@ test("pre-step 在推送后会注入 delivery 检查点", async () => {
   );
   assert.equal(decision.messages.length, 1);
   assert.match(decision.messages[0].content[0].text, /影响面/);
+});
+
+const longSession = (n = 620) => Array.from({ length: n }, () => ({ type: "step/start", data: {} }));
+const ctx2 = () => fakeCtx();
+
+test("长会话没写过 PROGRESS.md：判定为 context", () => {
+  const facts = { events: 620, turn: 7, wroteProgress: false };
+  assert.equal(needsContextReset(facts), true);
+  assert.equal(decideRule(analyzeTurn([], 7), facts), "context");
+});
+
+test("写过 PROGRESS.md、或会话还短：不提醒", () => {
+  assert.equal(needsContextReset({ events: 620, turn: 7, wroteProgress: true }), false);
+  assert.equal(needsContextReset({ events: 300, turn: 7, wroteProgress: false }), false);
+  assert.equal(needsContextReset({ events: 620, turn: 3, wroteProgress: false }), false);
+});
+
+test("PROGRESS.md 只认 write/edit，正文里提到不算", () => {
+  const touched = [{ type: "tool/ptc-dispatch", data: { name: "edit", arguments: { file_path: "/w/PROGRESS.md" } } }];
+  const mentioned = [{ type: "tool/ptc-dispatch", data: { name: "bash", arguments: { command: "cat PROGRESS.md" } } }];
+  assert.equal(wroteProgressFile(touched), true);
+  assert.equal(wroteProgressFile(mentioned), false);
+});
+
+test("context 每个会话只提醒一次", async () => {
+  const ctx = fakeCtx();
+  installGuard(ctx);
+  const agent = fakeAgent(longSession(), { id: "s-long" });
+  const preStep = ctx.handlers.get("agent/pre-step");
+  const next = async () => ({ kind: "enter", messages: [] });
+
+  const first = await preStep({ agent, step: 2, turn: 7, signal: { aborted: false } }, next);
+  assert.equal(first.messages.length, 1);
+  assert.match(first.messages[0].content[0].text, /PROGRESS\.md/);
+
+  const second = await preStep({ agent, step: 2, turn: 8, signal: { aborted: false } }, next);
+  assert.equal(second.messages.length, 0, "换回合也不再提醒");
+});
+
+test("context 不占回合预算：同回合还能让 evidence 响一次", async () => {
+  const events = longSession(620);
+  const agent = fakeAgent(events, { id: "s-ctx" });
+  const steers = [];
+  agent.steer = (m) => steers.push(m);
+  const ctx = ctx2();
+  installGuard(ctx);
+  const next = async () => ({ kind: "enter", messages: [] });
+
+  const first = await ctx.handlers.get("agent/pre-step")(
+    { agent, step: 1, turn: 6, signal: { aborted: false } },
+    next,
+  );
+  assert.equal(first.messages.length, 1);
+  assert.match(first.messages[0].content[0].text, /PROGRESS\.md/);
+
+  events.push(call(6, "c9", "write", { file_path: "/tmp/ctx-x.js" }), result(6, "c9"));
+  ctx.handlers.get("agent/turn-stopping")({ agent, turn: 6 });
+  assert.equal(steers.length, 1, "context 没吃掉 evidence 的名额");
+  assert.match(steers[0].content[0].text, /ctx-x\.js/);
 });
