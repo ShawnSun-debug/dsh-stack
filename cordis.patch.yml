@@ -62,7 +62,7 @@
           - id: skill-filesystem
             name: '@deepseek-ai/dsh-skill-filesystem'
           - id: skill-ds-stack
-            name: dsh-stack
+            name: dsh-convenient-mode
           - id: tool-skill
             name: '@deepseek-ai/dsh-tool-skill'
           - id: command-goal

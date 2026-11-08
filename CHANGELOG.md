@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 0.9.0 — 2026-11-08
+
+- 包名改为 `dsh-convenient-mode`（npm 上的 `dsh-stack` 已被他人占用，市场只认 npm 名）。仓库仍是 `ShawnSun-debug/dsh-stack`。
+- `build-bundle.mjs` 改为从 package.json 读包名写插件行：改名时最容易漏的一处，现在不会再漏。
+- 守卫日志目录随包名改为 `$DSH_HOME/dsh-convenient-mode/guard.log`。
+- 补 repository / homepage / bugs / keywords，准备发布。
+
 ## 0.8.1 — 2026-11-08
 
 - 电脑端不受影响：安装器只在 `$DSH_HOME/dsh-go` 已存在时才写界面配置；没有 dsh-go 的机器直接跳过，连目录都不建。

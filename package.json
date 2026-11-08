@@ -1,7 +1,7 @@
 {
-  "name": "dsh-stack",
-  "version": "0.8.1",
-  "description": "Resident skill baseline for the ds-stack pack: keeps 8 curated ds-* skills present in a profile (local loose copies still win).",
+  "name": "dsh-convenient-mode",
+  "version": "0.9.0",
+  "description": "DS Stack 模式：29 个 ds-* 技能进预设、5 条守卫、意图路由与推理强度路由，自带 dsh-go 界面。",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -40,5 +40,20 @@
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "replay": "node scripts/guard-replay.mjs"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShawnSun-debug/dsh-stack.git"
+  },
+  "homepage": "https://github.com/ShawnSun-debug/dsh-stack",
+  "bugs": {
+    "url": "https://github.com/ShawnSun-debug/dsh-stack/issues"
+  },
+  "keywords": [
+    "dsh",
+    "ds-stack",
+    "agent-preset",
+    "skills",
+    "dsh-go"
+  ]
 }

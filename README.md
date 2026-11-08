@@ -45,13 +45,13 @@ node scripts/install.mjs --apply  --profile <名字>  # 注册到某个 profile
 node scripts/install.mjs --remove --profile <名字>  # 撤销
 ```
 
-`--apply` 写三处（各留 `.bak-<时间戳>`）：profile 的 `package.json` 依赖、`dsh.profile.bundles`、`node_modules/dsh-stack` 链接（Windows 建 junction，其它平台复制目录）。重启 DSH，在模式选择里选「DS Stack 模式」。
+`--apply` 写三处（各留 `.bak-<时间戳>`）：profile 的 `package.json` 依赖、`dsh.profile.bundles`、`node_modules/dsh-convenient-mode` 链接（Windows 建 junction，其它平台复制目录）。重启 DSH，在模式选择里选「DS Stack 模式」。
 
 ## 搬到另一台机器 / 手机
 
 整个目录是自包含的，没有绝对路径依赖（`cordis.patch.yml` 已生成好，不需要重新构建）：
 
-1. 把 `dsh-stack/` 整个目录复制过去，放在任意位置。
+1. 把插件目录整个复制过去，放在任意位置。
 2. `node <目录>/scripts/install.mjs --apply --profile <profile 名>`
 3. 重启 DSH，选「DS Stack 模式」。
 
@@ -110,7 +110,7 @@ persona 的规则是散文，长会话里会漂。守卫在两个点上看本回
 
 五条规则：改了非文档文件却没有成功的检查（ds-verify-loop）；连续 2 次工具调用失败（ds-unstick）；本回合真推送 / 开了 PR（ds-blast-radius + ds-pr，临时仓库探针不算）；一轮成功改了 6 个以上代码文件（ds-plan-loop，文档和配置成批写不算）；会话很长却没写过 PROGRESS.md（ds-context-reset，每会话一次，走独立通道，不占回合预算）。前四条每回合最多 2 条。
 
-提醒会带上具体命令（按文件类型推断）；每命中一条，守卫往 `$DSH_HOME/dsh-stack/guard.log` 追加一行 JSON，不用翻压缩会话就能看它吵不吵。
+提醒会带上具体命令（按文件类型推断）；每命中一条，守卫往 `$DSH_HOME/dsh-convenient-mode/guard.log` 追加一行 JSON，不用翻压缩会话就能看它吵不吵。
 
 先量再改：`npm run replay` 会把一个真实会话按步回放，输出每条规则会响几次；`node scripts/guard-replay.mjs --all` 跑全部历史会话。改动规则前先看这个数。
 

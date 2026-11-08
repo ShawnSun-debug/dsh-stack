@@ -387,14 +387,14 @@ test("守卫写日志：一行一条，带规则与会话", async () => {
       { agent, step: 2, turn: 1, signal: { aborted: false } },
       async () => ({ kind: "enter", messages: [] }),
     );
-    const line = readFileSync(join(home, "dsh-stack", "guard.log"), "utf8").trim();
+    const line = readFileSync(join(home, "dsh-convenient-mode", "guard.log"), "utf8").trim();
     const entry = JSON.parse(line);
     assert.equal(entry.rule, "evidence");
     assert.equal(entry.surface, "pre-step");
     assert.equal(entry.session, "s-log");
     assert.equal(entry.turn, 1);
     assert.deepEqual(entry.files, ["/tmp/log-a.js"]);
-    assert.equal(guardLogPath(), join(home, "dsh-stack", "guard.log"));
+    assert.equal(guardLogPath(), join(home, "dsh-convenient-mode", "guard.log"));
   } finally {
     if (previous === undefined) delete process.env.DSH_HOME;
     else process.env.DSH_HOME = previous;

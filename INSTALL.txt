@@ -1,4 +1,4 @@
-dsh-stack 0.5.0 —— DS Stack 模式插件
+dsh-convenient-mode 0.9.0 —— DS Stack 模式插件
 =========================================
 
 这个插件给 DSH 内核加一个 agent 模式：每轮注入两层规则（10 条每轮必守 + 4 行任务索引，
@@ -17,10 +17,10 @@ dsh-stack 0.5.0 —— DS Stack 模式插件
 
 装法 B（没有 node）
 -------------------
-1. 把整个目录复制到 <profile>/node_modules/dsh-stack
+1. 把整个目录复制到 <profile>/node_modules/dsh-convenient-mode
 2. 编辑 <profile>/package.json：
-   dependencies 里加   "dsh-stack": "file:<该目录的绝对路径>"
-   dsh.profile.bundles 数组里加   "dsh-stack"
+   dependencies 里加   "dsh-convenient-mode": "file:<该目录的绝对路径>"
+   dsh.profile.bundles 数组里加   "dsh-convenient-mode"
 3. 重启 DSH
 
 ### 手机上（自己跑 DSH 内核）
@@ -42,7 +42,7 @@ dsh-stack 0.5.0 —— DS Stack 模式插件
 -------------
 - 先跑 node scripts/install.mjs --verify --profile <profile 名>：
   它逐条检查 profile 里是否真有依赖、bundle、node_modules 副本，以及包内 bundle 是否带规则；缺哪条会打印 FAIL 并以退出码 1 结束。
-- <profile>/package.json 的 dsh.profile.bundles 含 dsh-stack
+- <profile>/package.json 的 dsh.profile.bundles 含 dsh-convenient-mode
 - 重启后新会话的系统提示里应出现「每轮必守」与「按任务触发（命中就做）」两层
 - 守卫是否加载：跑一次 `node scripts/guard-replay.mjs` 看基线，或直接看会话里有没有 `ds-stack-guard` 来源的提醒
 - 模式列表里没有「DS Stack 模式」时，先确认上面两处真的写进去了，再看 DSH 日志

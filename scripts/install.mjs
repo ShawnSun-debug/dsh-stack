@@ -21,7 +21,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(dirname(fileURLToPath(import.meta.url)));
-const PKG_NAME = "dsh-stack";
+const PKG_NAME = "dsh-convenient-mode";
 const LEGACY_BEGIN = "# >>> dsh-stack (managed by dsh-stack/scripts/install.mjs) >>>";
 const LEGACY_END = "# <<< dsh-stack <<<";
 const SKILLS_DIR = join(HERE, "assets", "skills");

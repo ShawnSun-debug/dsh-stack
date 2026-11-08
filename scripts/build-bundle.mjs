@@ -98,7 +98,9 @@ const personaFrom = personaMatch[0] + "\n";
 const personaTo = "              prefix: |-\n" + persona.split("\n").map((l) => (l ? INDENT + l : "")).join("\n") + "\n";
 // 5) provider row after skill-filesystem
 const skillFrom = "          - id: skill-filesystem\n            name: '@deepseek-ai/dsh-skill-filesystem'\n";
-const skillTo = skillFrom + "          - id: skill-ds-stack\n            name: dsh-stack\n";
+// 行里写的模块名必须等于包名，否则加载器解析不到（改名时最容易漏的一处）。
+const PKG_NAME = JSON.parse(readFileSync(join(HERE, "package.json"), "utf8")).name;
+const skillTo = skillFrom + "          - id: skill-ds-stack\n            name: " + PKG_NAME + "\n";
 
 let body = sub(base, rowFrom, rowTo, "row id");
 body = sub(body, idFrom, idTo, "config id");
