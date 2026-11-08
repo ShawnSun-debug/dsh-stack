@@ -3,6 +3,13 @@
   "composer": {
     "quickActions": [
       {
+        "label": "继续",
+        "action": {
+          "type": "send",
+          "text": "继续"
+        }
+      },
+      {
         "label": "解释",
         "action": {
           "type": "send",
@@ -21,13 +28,6 @@
         "action": {
           "type": "send",
           "text": "把这次改动发出去"
-        }
-      },
-      {
-        "label": "进度",
-        "action": {
-          "type": "send",
-          "text": "现在到哪了"
         }
       }
     ]
