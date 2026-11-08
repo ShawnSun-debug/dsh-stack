@@ -1,8 +1,9 @@
-dsh-stack 0.4.0 —— DS Stack 模式插件
+dsh-stack 0.5.0 —— DS Stack 模式插件
 =========================================
 
-这个插件给 DSH 内核加一个 agent 模式：每轮注入工作纪律 + 4 条自动触发规则，
-并自带 8 个常驻 ds-* 技能。包内 cordis.patch.yml 已生成，不需要重新构建。
+这个插件给 DSH 内核加一个 agent 模式：每轮注入两层规则（10 条每轮必守 + 4 行任务索引，
+覆盖全部 29 个 ds-* 技能），并自带 8 个常驻技能；另有 5 条守卫做机械检查。
+每一条技能落在哪，见 docs/mapping.md。包内 cordis.patch.yml 已生成，不需要重新构建。
 
 
 装法 A（目标机器有 node，推荐）
@@ -41,8 +42,10 @@ dsh-stack 0.4.0 —— DS Stack 模式插件
 - 先跑 node scripts/install.mjs --verify --profile <profile 名>：
   它逐条检查 profile 里是否真有依赖、bundle、node_modules 副本，以及包内 bundle 是否带规则；缺哪条会打印 FAIL 并以退出码 1 结束。
 - <profile>/package.json 的 dsh.profile.bundles 含 dsh-stack
-- 重启后新会话的系统提示里应出现「自动触发（命中就执行，不用用户点名）」和 4 条规则
+- 重启后新会话的系统提示里应出现「每轮必守」与「按任务触发（命中就做）」两层
+- 守卫是否加载：跑一次 `node scripts/guard-replay.mjs` 看基线，或直接看会话里有没有 `ds-stack-guard` 来源的提醒
 - 模式列表里没有「DS Stack 模式」时，先确认上面两处真的写进去了，再看 DSH 日志
+- 设计说明与 29 条映射：docs/mapping.md；版本变更：CHANGELOG.md
 
 依赖
 -----

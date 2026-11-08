@@ -22,7 +22,9 @@
 第二层「按任务触发」4 行索引：发出去（ship/ready/pr/pr-comments/watch-pr）、多人看（jury/review-loop）、并行与赌错（swarm/best-of-n）、接手与状态（adopt/revive/catchup）。
 
 守卫再把能机械检查的部分接住：缺证据、连续失败、真推送后、代码文件改太多（6 个以上，文档不算）、长会话没写 PROGRESS.md（每会话一次，独立通道）。规则改动前先用 scripts/guard-replay.mjs 量一遍历史会话（71 回合的基线：unstick 1、evidence 9、delivery 7、scope 18、context 3）。
-## 三、它提供的技能（8 个常驻）
+## 三、它提供的技能（8 个常驻；模式一共引用 29 个）
+
+常驻指随包分发、散装副本缺失时兜底的那 8 个；模式规则引用的 29 个不依赖这些文件存在。逐条映射见 [docs/mapping.md](docs/mapping.md)。
 
 | 技能 | 做什么 | 什么时候出现 |
 |---|---|---|
@@ -92,22 +94,23 @@ node scripts/build-bundle.mjs --check
    - `dsh.profile.bundles` 数组里加一项 `"dsh-stack"`。
 3. 重启 DSH，模式选择里应出现「DS Stack 模式」。
 
-## 六、本机验证记录（2026-11-05，插件版本 0.4.0）
+## 六、本机验证记录（2026-11-08，插件版本 0.5.0）
 
 | 检查 | 命令 | 结果 |
 |---|---|---|
 | 技能数 | `node scripts/install.mjs --check` | `resident skills: 8` |
 | 技能 provider 真跑 | 直接调 `lib/index.js` 的 `apply` + `list()` | 8 条，rank 600，source `bundled`，描述齐全，`get()` 返回去掉 frontmatter 的正文 |
-| bundle 生成 | `node scripts/build-bundle.mjs` | round-trip ok，persona 12 行写入 `cordis.patch.yml` |
+| bundle 生成 | `node scripts/build-bundle.mjs` | round-trip ok，persona 19 行写入 `cordis.patch.yml` |
 | 安装器语法 | `node --check scripts/install.mjs` | ok |
 | 规则是否真的进了 bundle | 对 `cordis.patch.yml` 做 5 条字符串断言 | 全部命中 |
 | 装后核对（目标机器用） | `--verify --profile demo`（临时 profile，装前/装后/卸后各跑一次） | 装前 3 条 FAIL、装后全 PASS、卸后回到 FAIL，退出码 1/0/1 |
-| bundle 是合法 YAML | 用 `yaml` 包解析 `cordis.patch.yml` | 顶层数组；`preset-ds-stack` 的 `id=ds-stack`、`name=DS Stack 模式`；24 个 plugin 行；`skill-ds-stack` 行在；persona 12 行、4 条规则。`!!js` 标签报警是基底预设自带的，DSH 加载器认识它 |
+| bundle 是合法 YAML | 用 `yaml` 包解析 `cordis.patch.yml` | 顶层数组；`preset-ds-stack` 的 `id=ds-stack`、`name=DS Stack 模式`；24 个 plugin 行；`skill-ds-stack` 行在；persona 19 行（10 条必守 + 4 行索引）。已随 0.5.0 复核。`!!js` 标签报警是基底预设自带的，DSH 加载器认识它 |
 | 干净 profile 安装 | 临时 profile + 独立 `USERPROFILE` 跑 `--apply` | 依赖写成 `link:`、bundle 注册、junction 建成、profile 留 `.bak-` |
 | 干净 profile 卸载 | 同一 profile 跑 `--remove` | 依赖、bundle、链接全部回滚 |
 | 无符号链接的平台 | `DS_STACK_NO_SYMLINK=1` 强制退化 | 打印 `symlink failed (NO_SYMLINK), copied the folder instead`，复制 10 个条目，`--remove` 能删掉复制目录 |
 
-未验证：在手机上的实际安装与「DS Stack 模式」是否出现在模式列表 —— 本机没有可用的远端 host（`remote_list_hosts` 返回空），也没法在这里跑一次目标设备。
+手机端已安装并验证（2026-11-08）：装进 web profile 后重启，模式出现在列表里；守卫在真实回合里触发过两次（缺证据、长会话），
+`source.kind = ds-stack-guard` 写进会话日志。回放基线：21 会话 / 71 回合 → unstick 1、evidence 9、delivery 7、scope 18、context 3。
 
 ## 七、已知限制
 
