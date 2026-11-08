@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { analyzeTurn, decideRule, installGuard, onlyDocumentation, needsContextReset, evidenceNotice, evidenceSteer, deliveryNotice, guardLogPath, scopeNotice, suggestCheck, wroteProgressFile } from "../lib/guard.js";
+import { analyzeTurn, decideRule, installGuard, lastUserText, onlyDocumentation, needsContextReset, evidenceNotice, evidenceSteer, deliveryNotice, guardLogPath, routeIntent, scopeNotice, suggestCheck, wroteProgressFile } from "../lib/guard.js";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -387,4 +387,50 @@ test("守卫写日志：一行一条，带规则与会话", async () => {
     else process.env.DSH_HOME = previous;
     rmSync(home, { recursive: true, force: true });
   }
+});
+
+test("认得出常见意图，不用报技能名", () => {
+  assert.equal(routeIntent("解释一下这段代码怎么跑的").skill, "ds-explain");
+  assert.equal(routeIntent("把它发出去吧").skill, "ds-ship");
+  assert.equal(routeIntent("帮我审一下这个改动").skill, "ds-review-loop");
+  assert.equal(routeIntent("现在到哪了").skill, "ds-catchup");
+  assert.equal(routeIntent("接手这个 PR").skill, "ds-adopt");
+  assert.equal(routeIntent("做个页面").skill, "ds-design");
+  assert.equal(routeIntent("今天天气怎么样"), null);
+  assert.equal(routeIntent(""), null);
+});
+
+test("只认用户原话，不认系统塞进来的消息", () => {
+  const events = [
+    { type: "user/message", data: { source: { kind: "user" }, content: [{ type: "text", text: "解释一下 a.js" }] } },
+    { type: "user/message", data: { source: { kind: "ds-stack-guard" }, content: [{ type: "text", text: "检查点" }] } },
+    { type: "user/message", data: { source: { kind: "time-context" }, content: [{ type: "text", text: "2026-11-08" }] } },
+  ];
+  assert.equal(lastUserText(events), "解释一下 a.js");
+});
+
+test("第一步就自动按流程走，第二步不重复", async () => {
+  const events = [
+    { type: "turn/start", data: { turn: 1 } },
+    { type: "user/message", data: { source: { kind: "user" }, content: [{ type: "text", text: "解释一下这段代码" }] } },
+  ];
+  const ctx = fakeCtx();
+  installGuard(ctx);
+  const agent = fakeAgent(events, { id: "s-route" });
+  const next = async () => ({ kind: "enter", messages: [] });
+  const preStep = ctx.handlers.get("agent/pre-step");
+
+  const first = await preStep({ agent, step: 1, turn: 1, signal: { aborted: false } }, next);
+  assert.equal(first.messages.length, 1);
+  assert.match(first.messages[0].content[0].text, /DS Stack 路由/);
+  assert.match(first.messages[0].content[0].text, /ds-explain/);
+
+  const second = await preStep({ agent, step: 2, turn: 1, signal: { aborted: false } }, next);
+  assert.equal(second.messages.length, 0, "同回合不重复路由");
+});
+
+test("不带斜杠的技能名也认", () => {
+  assert.equal(routeIntent("ds-tdd").skill, "ds-tdd");
+  assert.equal(routeIntent("用 ds-ship 把这单做了").skill, "ds-ship");
+  assert.match(routeIntent("ds-jury").line, /加载它的 SKILL\.md/);
 });

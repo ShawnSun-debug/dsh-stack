@@ -61,6 +61,24 @@ node scripts/install.mjs --remove --profile <名字>  # 撤销
 
 工作区不共享：`@路径` 解析的是目标机器自己的工作区，要引用别处的文件，先复制进去。
 
+## 不用报技能名：意图路由
+
+回合第一步会读你这句话，认出来就按对应流程走，注入一条一两句的提示（不占守卫预算）：
+
+| 你会说 | 走哪条 |
+|---|---|
+| 解释一下 / 怎么跑 / 什么原理 | ds-explain 三段式 |
+| 发出去 / 合并 / 开 PR | ds-ship（或 ds-ready） |
+| 审一下 / 挑毛病 / 第二意见 | ds-review-loop 或 ds-jury |
+| 到哪了 / 进展 | ds-catchup |
+| 接手这个 PR | ds-adopt |
+| 做个页面 / 改 UI | ds-design |
+| 出个计划 / 分几步 | ds-plan-loop |
+| 修一下 / 报错 / 挂了 | ds-tdd → ds-verify-loop |
+| 验证一下 / 测一下 | ds-verify-loop |
+
+直接写 `ds-tdd`（不带斜杠）也认。认不出来就不猜，什么也不加。
+
 ## 守卫：规则不靠自觉
 
 persona 的规则是散文，长会话里会漂。守卫在两个点上看本回合的会话日志：
