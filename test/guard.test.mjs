@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { analyzeTurn, installGuard, onlyDocumentation, evidenceNotice } from "../lib/guard.js";
+import { analyzeTurn, installGuard, onlyDocumentation, evidenceNotice, deliveryNotice, scopeNotice } from "../lib/guard.js";
 
 const call = (turn, callId, name, args) => ({
   type: "tool/call",
@@ -225,4 +225,38 @@ test("PTC 模式：别的回合的内层调用不计入本回合", () => {
   assert.equal(a.evidenceMissing, true);
   assert.equal(a.failStreak, 0);
   assert.deepEqual(a.mutatedFiles, ["/tmp/b.js"]);
+});
+
+test("推送过：提醒影响面、证据和 PR 可读性", () => {
+  const events = [
+    ptcCall(1, "r1"),
+    dispatch("r1", "bash", { command: "git push -u origin feat/x" }),
+  ];
+  const a = analyzeTurn(events, 1);
+  assert.equal(a.pushes, 1);
+  const text = deliveryNotice();
+  assert.match(text, /影响面/);
+  assert.match(text, /ds-pr/);
+});
+
+test("一轮改了 5 个不同文件：提醒先出计划", () => {
+  const events = [ptcCall(1, "r1")];
+  for (const i of [1, 2, 3, 4, 5]) events.push(dispatch("r1", "edit", { file_path: "/tmp/f" + i + ".js" }));
+  const a = analyzeTurn(events, 1);
+  assert.equal(a.mutatedAll.length, 5);
+  assert.match(scopeNotice(a.mutatedAll.length), /5 个不同文件/);
+  assert.match(scopeNotice(a.mutatedAll.length), /ds-plan-loop/);
+});
+
+test("pre-step 在推送后会注入 delivery 检查点", async () => {
+  const ctx = fakeCtx();
+  installGuard(ctx);
+  const events = [ptcCall(1, "r1"), dispatch("r1", "bash", { command: "git push" })];
+  const agent = fakeAgent(events, { id: "s-delivery" });
+  const decision = await ctx.handlers.get("agent/pre-step")(
+    { agent, step: 2, turn: 1, signal: { aborted: false } },
+    async () => ({ kind: "enter", messages: [] }),
+  );
+  assert.equal(decision.messages.length, 1);
+  assert.match(decision.messages[0].content[0].text, /影响面/);
 });

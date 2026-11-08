@@ -9,15 +9,14 @@
 
 ## 它每轮注入什么
 
-`presets/persona.txt` 的全部内容会作为 system prompt 前缀注入每一轮。当前是 6 行工作纪律 + 4 条自动触发规则：
+`presets/persona.txt` 的全文会作为 system prompt 前缀注入每一轮。现在是两层：
 
-| 命中 | 动作 |
-|---|---|
-| 修 bug | `ds-tdd` 先写一条会失败的测试 → `ds-verify-loop` 跑到绿；同一命令两轮不绿转 `ds-unstick` |
-| 结构改动（新模块/新接口/签名未定） | `grill` 问透（没有 grill 就一次一问、能查的自己查）→ `ds-blueprint` 定形状；两条成对，不单独用 |
-| 需要审视 | `ds-jury`；`ds-review-loop`、`ds-lessons` 只在点名时用 |
-| 任何时候 | 不使用 `ds-explain` |
+| 层 | 条数 | 内容 | 谁执行 |
+|---|---|---|---|
+| 每轮必守 | 10 条（覆盖 15 个技能）| ds-mode / ds-verify-loop / ds-tdd / ds-unstick / ds-blueprint / ds-explain / ds-unslop / ds-plan-loop / ds-context-reset / ds-ledger / ds-blast-radius / ds-principles / ds-lessons / ds-sharpen / grill | 模型，每轮都在眼前 |
+| 按任务触发 | 4 行索引 | ds-ship / ds-ready / ds-pr / ds-pr-comments / ds-watch-pr / ds-jury / ds-review-loop / ds-swarm / ds-best-of-n / ds-adopt / ds-revive / ds-catchup / ds-design / ds-design-audit / ds-help | 模型，命中即做；可机械检查的交给守卫 |
 
+29 个 ds-* 技能全部在这两层里出现过，没有只在磁盘上躺着的。人设从 512 字变成 1041 字（每轮多约 350 token）。
 ## 结构
 
 | 文件 | 作用 |
@@ -63,10 +62,10 @@ persona 的规则是散文，长会话里会漂。守卫在两个点上看本回
 
 | 触发点 | 什么时候 | 做什么 |
 |---|---|---|
-| `agent/pre-step` | 模型每一次开口之前 | 改了非文档文件、其后没有成功的 `bash`/`pwsh` → 在这一步的消息末尾追加一条 checkpoint |
-| `agent/turn-stopping` | 模型仍要收尾 | 同样的状态 → `steer` 一句，让回合再走一步去补验证 |
+| `agent/pre-step` | 模型每一次开口之前 | 命中规则 → 在这一步的消息末尾追加一条 checkpoint |
+| `agent/turn-stopping` | 模型仍要收尾 | 同样的判定 → `steer` 一句，让回合再走一步 |
 
-同一判定还有一条「连续 2 次工具调用失败 → 换前提」的分支。
+四条规则：改了非文档文件却没有成功的检查（ds-verify-loop）；连续 2 次工具调用失败（ds-unstick）；本回合推送或开了 PR（ds-blast-radius + ds-pr）；一轮成功改了 5 个以上文件（ds-plan-loop）。每回合最多 2 条。
 
 两种工具形态都认：直接调用的 `write`/`edit`/`bash`，以及 PTC 模式下 `run_code` 程序里的内层调用（`tool/ptc-dispatch`，自带 `isError`，用 `rootCallId` 找回回合）。`run_code` 自己的外层结果不算证据——它只是整段程序的汇总。
 
