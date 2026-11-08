@@ -67,7 +67,7 @@ node scripts/install.mjs --remove --profile <名字>  # 撤销
 
 | 你说的话 | 强度 |
 |---|---|
-| 你好 / 谢谢 / 几点了 / 天气 | low |
+| 你好 / 谢谢 / 几点了 / 天气 | off |
 | 修 bug、重构、设计、评审、交付、计划 | max |
 | 其余（默认） | high |
 

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { analyzeTurn, decideRule, installGuard, lastUserText, onlyDocumentation, needsContextReset, evidenceNotice, evidenceSteer, deliveryNotice, guardLogPath, pickEffort, routeIntent, scopeNotice, suggestCheck, wroteProgressFile } from "../lib/guard.js";
+import { analyzeTurn, claimedUserText, decideRule, installGuard, lastUserText, onlyDocumentation, needsContextReset, evidenceNotice, evidenceSteer, deliveryNotice, guardLogPath, pickEffort, routeIntent, scopeNotice, suggestCheck, wroteProgressFile } from "../lib/guard.js";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -449,8 +449,8 @@ test("不带斜杠的技能名也认", () => {
 });
 
 test("强度映射：闲聊降、干活升、拿不准用默认", () => {
-  assert.equal(pickEffort("你好"), "low");
-  assert.equal(pickEffort("现在几点了"), "low");
+  assert.equal(pickEffort("你好"), "off");
+  assert.equal(pickEffort("现在几点了"), "off");
   assert.equal(pickEffort("继续"), "high");
   assert.equal(pickEffort("修一下这个 bug"), "max");
   assert.equal(pickEffort("把这次改动发出去"), "max");
@@ -508,4 +508,22 @@ test("用户手动切过强度：本会话不再自动改", async () => {
   const before = model.selected.length;
   await preStep({ agent, step: 1, turn: 3, signal: { aborted: false } }, next);
   assert.equal(model.selected.length, before, "手动接管后不再自动切");
+});
+
+test("认领的消息优先于会话历史：不会拿上一句判断", async () => {
+  const ctx = fakeCtx();
+  installGuard(ctx);
+  const model = fakeModel({ provider: "p", model: "m", reasoningEffort: "max" });
+  // 会话里最后一句是「把A做到 dsh-stack」，本步认领的是「现在几点了」
+  const events = userEvents("把A做到 dsh-stack");
+  const agent = { session: { id: "s-claim", snapshotEvents: () => events }, steer() {}, model };
+  const claimed = [{ source: { kind: "user" }, content: [{ type: "text", text: "现在几点了" }] }];
+
+  await ctx.handlers.get("agent/pre-step")(
+    { agent, messages: claimed, step: 1, turn: 1, signal: { aborted: false } },
+    async () => ({ kind: "enter", messages: [] }),
+  );
+  assert.equal(model.selected.length, 1);
+  assert.equal(model.selected[0].reasoningEffort, "off", "按这一句判，不是上一句");
+  assert.equal(claimedUserText(claimed), "现在几点了");
 });
