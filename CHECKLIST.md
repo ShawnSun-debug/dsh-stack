@@ -21,7 +21,7 @@
 
 第二层「按任务触发」4 行索引：发出去（ship/ready/pr/pr-comments/watch-pr）、多人看（jury/review-loop）、并行与赌错（swarm/best-of-n）、接手与状态（adopt/revive/catchup）。
 
-守卫再把能机械检查的部分接住：缺证据、连续失败、真推送后、代码文件改太多（6 个以上，文档不算）、长会话没写 PROGRESS.md（每会话一次，独立通道）。规则改动前先用 scripts/guard-replay.mjs 量一遍历史会话（71 回合的基线：unstick 1、evidence 9、delivery 7、scope 18、context 3）。
+守卫再把能机械检查的部分接住：缺证据、连续失败、真推送后、代码文件改太多（6 个以上，文档不算）、长会话没写 PROGRESS.md（每会话一次，独立通道）。每次命中都会追加一行到 $DSH_HOME/dsh-stack/guard.log。规则改动前先用 scripts/guard-replay.mjs 量一遍历史会话（71 回合的基线：unstick 1、evidence 9、delivery 7、scope 18、context 3）。
 ## 三、它提供的技能（8 个常驻；模式一共引用 29 个）
 
 常驻指随包分发、散装副本缺失时兜底的那 8 个；模式规则引用的 29 个不依赖这些文件存在。逐条映射见 [docs/mapping.md](docs/mapping.md)。

@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { analyzeTurn, decideRule, installGuard, onlyDocumentation, needsContextReset, evidenceNotice, deliveryNotice, scopeNotice, wroteProgressFile } from "../lib/guard.js";
+import { analyzeTurn, decideRule, installGuard, onlyDocumentation, needsContextReset, evidenceNotice, evidenceSteer, deliveryNotice, guardLogPath, scopeNotice, suggestCheck, wroteProgressFile } from "../lib/guard.js";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 const call = (turn, callId, name, args) => ({
   type: "tool/call",
@@ -339,4 +342,46 @@ test("context 不占回合预算：同回合还能让 evidence 响一次", async
   ctx.handlers.get("agent/turn-stopping")({ agent, turn: 6 });
   assert.equal(steers.length, 1, "context 没吃掉 evidence 的名额");
   assert.match(steers[0].content[0].text, /ctx-x\.js/);
+});
+
+test("按文件类型给出具体验证命令", () => {
+  assert.equal(suggestCheck(["/w/a.js"]), "node --check /w/a.js");
+  assert.equal(suggestCheck(["/w/a.ts"]), "npx tsc --noEmit");
+  assert.equal(suggestCheck(["/w/a.py"]), "python3 -m py_compile /w/a.py");
+  assert.equal(suggestCheck(["/w/a.go"]), "go build ./...");
+  assert.equal(suggestCheck(["/w/README.md"]), null);
+});
+
+test("提醒里带上具体命令", () => {
+  assert.match(evidenceNotice(["/w/a.js"]), /node --check \/w\/a\.js/);
+  assert.match(evidenceSteer(["/w/a.js"]), /node --check \/w\/a\.js/);
+  assert.match(evidenceNotice(["/w/a.unknown"]), /跑一条能证明它的命令/);
+});
+
+test("守卫写日志：一行一条，带规则与会话", async () => {
+  const home = mkdtempSync(join(tmpdir(), "dsh-guard-"));
+  const previous = process.env.DSH_HOME;
+  process.env.DSH_HOME = home;
+  try {
+    const ctx = fakeCtx();
+    installGuard(ctx);
+    const events = [ptcCall(1, "r1"), dispatch("r1", "edit", { file_path: "/tmp/log-a.js" })];
+    const agent = fakeAgent(events, { id: "s-log" });
+    await ctx.handlers.get("agent/pre-step")(
+      { agent, step: 2, turn: 1, signal: { aborted: false } },
+      async () => ({ kind: "enter", messages: [] }),
+    );
+    const line = readFileSync(join(home, "dsh-stack", "guard.log"), "utf8").trim();
+    const entry = JSON.parse(line);
+    assert.equal(entry.rule, "evidence");
+    assert.equal(entry.surface, "pre-step");
+    assert.equal(entry.session, "s-log");
+    assert.equal(entry.turn, 1);
+    assert.deepEqual(entry.files, ["/tmp/log-a.js"]);
+    assert.equal(guardLogPath(), join(home, "dsh-stack", "guard.log"));
+  } finally {
+    if (previous === undefined) delete process.env.DSH_HOME;
+    else process.env.DSH_HOME = previous;
+    rmSync(home, { recursive: true, force: true });
+  }
 });
