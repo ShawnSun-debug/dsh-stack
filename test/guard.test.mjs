@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { analyzeTurn, decideRule, installGuard, lastUserText, onlyDocumentation, needsContextReset, evidenceNotice, evidenceSteer, deliveryNotice, guardLogPath, routeIntent, scopeNotice, suggestCheck, wroteProgressFile } from "../lib/guard.js";
+import { analyzeTurn, decideRule, installGuard, lastUserText, onlyDocumentation, needsContextReset, evidenceNotice, evidenceSteer, deliveryNotice, guardLogPath, pickEffort, routeIntent, scopeNotice, suggestCheck, wroteProgressFile } from "../lib/guard.js";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -446,4 +446,66 @@ test("不带斜杠的技能名也认", () => {
   assert.equal(routeIntent("ds-tdd").skill, "ds-tdd");
   assert.equal(routeIntent("用 ds-ship 把这单做了").skill, "ds-ship");
   assert.match(routeIntent("ds-jury").line, /加载它的 SKILL\.md/);
+});
+
+test("强度映射：闲聊降、干活升、拿不准用默认", () => {
+  assert.equal(pickEffort("你好"), "low");
+  assert.equal(pickEffort("现在几点了"), "low");
+  assert.equal(pickEffort("继续"), "high");
+  assert.equal(pickEffort("修一下这个 bug"), "max");
+  assert.equal(pickEffort("把这次改动发出去"), "max");
+  assert.equal(pickEffort("帮我解释一下这段"), "high");
+});
+
+const fakeModel = (initial) => {
+  let current = initial;
+  const selected = [];
+  return {
+    current: () => ({ ...current }),
+    select: (next) => {
+      selected.push(next);
+      current = { ...next };
+    },
+    selected,
+    setManual: (selection) => {
+      current = { ...selection };
+    },
+  };
+};
+
+const userEvents = (text) => [
+  { type: "turn/start", data: { turn: 1 } },
+  { type: "user/message", data: { source: { kind: "user" }, content: [{ type: "text", text }] } },
+];
+
+test("第一步按意图改强度，同回合第二步不再改", async () => {
+  const ctx = fakeCtx();
+  installGuard(ctx);
+  const model = fakeModel({ provider: "p", model: "m", reasoningEffort: "high" });
+  const agent = { session: { id: "s-eff", snapshotEvents: () => userEvents("修一下这个 bug") }, steer() {}, model };
+  const preStep = ctx.handlers.get("agent/pre-step");
+  const next = async () => ({ kind: "enter", messages: [] });
+
+  await preStep({ agent, step: 1, turn: 1, signal: { aborted: false } }, next);
+  assert.equal(model.selected.length, 1);
+  assert.deepEqual(model.selected[0], { provider: "p", model: "m", reasoningEffort: "max" });
+
+  await preStep({ agent, step: 2, turn: 1, signal: { aborted: false } }, next);
+  assert.equal(model.selected.length, 1, "同回合不重复切");
+});
+
+test("用户手动切过强度：本会话不再自动改", async () => {
+  const ctx = fakeCtx();
+  installGuard(ctx);
+  const model = fakeModel({ provider: "p", model: "m", reasoningEffort: "high" });
+  const agent = { session: { id: "s-manual", snapshotEvents: () => userEvents("修一下这个 bug") }, steer() {}, model };
+  const preStep = ctx.handlers.get("agent/pre-step");
+  const next = async () => ({ kind: "enter", messages: [] });
+
+  await preStep({ agent, step: 1, turn: 1, signal: { aborted: false } }, next); // 守卫设成 max
+  model.setManual({ provider: "p", model: "m", reasoningEffort: "off" }); // 用户手动切
+  await preStep({ agent, step: 1, turn: 2, signal: { aborted: false } }, next);
+  const before = model.selected.length;
+  await preStep({ agent, step: 1, turn: 3, signal: { aborted: false } }, next);
+  assert.equal(model.selected.length, before, "手动接管后不再自动切");
 });
