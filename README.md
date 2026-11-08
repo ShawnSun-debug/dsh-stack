@@ -17,6 +17,10 @@
 | 按任务触发 | 4 行索引 | ds-ship / ds-ready / ds-pr / ds-pr-comments / ds-watch-pr / ds-jury / ds-review-loop / ds-swarm / ds-best-of-n / ds-adopt / ds-revive / ds-catchup / ds-design / ds-design-audit / ds-help | 模型，命中即做；可机械检查的交给守卫 |
 
 29 个 ds-* 技能全部在这两层里出现过，没有只在磁盘上躺着的。人设从 512 字变成 1041 字（每轮多约 350 token）。
+## 29 个技能都落在哪
+
+完整映射见 [docs/mapping.md](docs/mapping.md)：每轮必守的 15 个、按任务触发的 14 个、被守卫机械化的 5 条，一张表看完。
+
 ## 结构
 
 | 文件 | 作用 |

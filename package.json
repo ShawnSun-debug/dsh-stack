@@ -1,6 +1,6 @@
 {
   "name": "dsh-stack",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Resident skill baseline for the ds-stack pack: keeps 8 curated ds-* skills present in a profile (local loose copies still win).",
   "type": "module",
   "main": "lib/index.js",
@@ -20,7 +20,9 @@
     "scripts/build-bundle.mjs",
     "README.md",
     "test",
-    "scripts/guard-replay.mjs"
+    "scripts/guard-replay.mjs",
+    "docs/mapping.md",
+    "CHANGELOG.md"
   ],
   "license": "MIT",
   "private": true,
