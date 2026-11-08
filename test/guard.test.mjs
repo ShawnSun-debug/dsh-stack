@@ -303,11 +303,24 @@ test("写过 PROGRESS.md、或会话还短：不提醒", () => {
   assert.equal(needsContextReset({ events: 620, turn: 3, wroteProgress: false }), false);
 });
 
-test("PROGRESS.md 只认 write/edit，正文里提到不算", () => {
+test("PROGRESS.md 只认写入，读到的不算", () => {
   const touched = [{ type: "tool/ptc-dispatch", data: { name: "edit", arguments: { file_path: "/w/PROGRESS.md" } } }];
   const mentioned = [{ type: "tool/ptc-dispatch", data: { name: "bash", arguments: { command: "cat PROGRESS.md" } } }];
   assert.equal(wroteProgressFile(touched), true);
   assert.equal(wroteProgressFile(mentioned), false);
+});
+
+test("脚本里落盘的 PROGRESS.md 也算写过", () => {
+  const viaScript = [{
+    type: "tool/ptc-dispatch",
+    data: { name: "bash", arguments: { command: "node -e 'fs.writeFileSync(\"/root/workspace/PROGRESS.md\", body)'" } },
+  }];
+  const viaRedirect = [{
+    type: "tool/ptc-dispatch",
+    data: { name: "bash", arguments: { command: "cat > PROGRESS.md <<EOF\n# x\nEOF" } },
+  }];
+  assert.equal(wroteProgressFile(viaScript), true);
+  assert.equal(wroteProgressFile(viaRedirect), true);
 });
 
 test("context 每个会话只提醒一次", async () => {
