@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 0.7.2 — 2026-11-08
+
+- 修打包：`files` 里缺 `presets/`，tarball 里没有 `presets/persona.txt`，拿到包的人无法重建 bundle、也改不了人设。
+- 新增 `test/package.test.mjs`：断言 files 覆盖运行与重建需要的文件，且 files 里没有不存在的条目。
+- `npm test` 改成 `node --test test/*.test.mjs`（Node 24 不接受目录导入）。
+- 用例 38 → 40。
+
 ## 0.7.1 — 2026-11-08
 
 - 修 0.7.0 的错位：路由读的是会话里上一句用户消息（当前这句在 pre-step 时还没写进会话），导致「现在几点了」被当成上一轮的任务判成 high。改成优先读本步认领的消息。
