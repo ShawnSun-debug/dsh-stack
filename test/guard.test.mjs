@@ -97,7 +97,7 @@ test("pre-step：缺证据时在 messages 末尾加一条 checkpoint", async () 
   );
   assert.equal(decision.messages.length, 1);
   assert.equal(decision.messages[0].role, "user");
-  assert.equal(decision.messages[0].source.kind, "ds-stack-guard");
+  assert.equal(decision.messages[0].source.kind, "engineer-guard");
   assert.match(decision.messages[0].content[0].text, /a\.js/);
 });
 
@@ -387,14 +387,14 @@ test("守卫写日志：一行一条，带规则与会话", async () => {
       { agent, step: 2, turn: 1, signal: { aborted: false } },
       async () => ({ kind: "enter", messages: [] }),
     );
-    const line = readFileSync(join(home, "dsh-convenient-mode", "guard.log"), "utf8").trim();
+    const line = readFileSync(join(home, "dsh-engineer-mode", "guard.log"), "utf8").trim();
     const entry = JSON.parse(line);
     assert.equal(entry.rule, "evidence");
     assert.equal(entry.surface, "pre-step");
     assert.equal(entry.session, "s-log");
     assert.equal(entry.turn, 1);
     assert.deepEqual(entry.files, ["/tmp/log-a.js"]);
-    assert.equal(guardLogPath(), join(home, "dsh-convenient-mode", "guard.log"));
+    assert.equal(guardLogPath(), join(home, "dsh-engineer-mode", "guard.log"));
   } finally {
     if (previous === undefined) delete process.env.DSH_HOME;
     else process.env.DSH_HOME = previous;
@@ -416,7 +416,7 @@ test("认得出常见意图，不用报技能名", () => {
 test("只认用户原话，不认系统塞进来的消息", () => {
   const events = [
     { type: "user/message", data: { source: { kind: "user" }, content: [{ type: "text", text: "解释一下 a.js" }] } },
-    { type: "user/message", data: { source: { kind: "ds-stack-guard" }, content: [{ type: "text", text: "检查点" }] } },
+    { type: "user/message", data: { source: { kind: "engineer-guard" }, content: [{ type: "text", text: "检查点" }] } },
     { type: "user/message", data: { source: { kind: "time-context" }, content: [{ type: "text", text: "2026-11-08" }] } },
   ];
   assert.equal(lastUserText(events), "解释一下 a.js");

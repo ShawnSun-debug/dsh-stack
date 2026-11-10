@@ -3,10 +3,10 @@
 # after the web patch. Edits saved from the Web editor override this row's
 # `config.plugins` by id from the profile patch.
 - insert:
-    - id: preset-ds-stack
+    - id: preset-engineer
       name: '@deepseek-ai/dsh-agent-preset'
       config:
-        id: ds-stack
+        id: engineer
         name: Engineer mode
         description: 8 个常驻 ds-* 技能 + 自动触发规则（修 bug→tdd/verify-loop，结构改动→grill/blueprint，审视→jury）+ 复述/先读后改/证据优先的工作纪律 + PROGRESS.md 换上下文（基底 ptc）。
         order: 20
@@ -69,8 +69,8 @@
             name: '@deepseek-ai/dsh-tool-schedule'
           - id: skill-filesystem
             name: '@deepseek-ai/dsh-skill-filesystem'
-          - id: skill-ds-stack
-            name: dsh-convenient-mode
+          - id: skill-engineer
+            name: dsh-engineer-mode
           - id: tool-skill
             name: '@deepseek-ai/dsh-tool-skill'
           - id: command-goal

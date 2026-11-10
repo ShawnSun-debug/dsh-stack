@@ -1,8 +1,14 @@
 # CHANGELOG
 
+## 0.11.0 — 2026-11-10
+
+- 机器 id 全部改成 engineer：包名 `dsh-engineer-mode`、预设 id `engineer`、bundle 行 `preset-engineer` / `skill-engineer`、技能 provider `engineer`、守卫来源 `engineer-guard`；守卫日志改写到 `$DSH_HOME/dsh-engineer-mode/guard.log`。
+- 会话迁移：66 份会话日志头与 44 份投影缓存里的 `agentPreset: ds-stack` 重写成 `engineer`。脚本 `scripts/migrate-sessions.mjs`（先备份、支持 dry-run、跳过正在写的会话）。
+- 旧包目录与旧日志目录保留，重启并确认后删除。
+
 ## 0.10.0 — 2026-11-10
 
-- 模式改名：`DS Stack 模式` → `Engineer mode`（显示名、守卫提醒文案、`--verify` 提示、文档与测试断言）。机器 id 一律不动：预设 id `ds-stack`、行 id `preset-ds-stack`、`skill-ds-stack`、守卫来源 `ds-stack-guard`、包名 `dsh-convenient-mode`，已存会话的预设引用不受影响。
+- 模式改名：`DS Stack 模式` → `Engineer mode`（显示名、守卫提醒文案、`--verify` 提示、文档与测试断言）。机器 id 这一版没动：预设 id `ds-stack`、行 id `preset-ds-stack` / `skill-ds-stack`、守卫来源 `ds-stack-guard`、包名 `ds-convenient-mode`（当时名为 dsh-convenient-mode）。
 - `ds-context-reset` 正文压成常驻块写进 `presets/persona.txt`：PROGRESS.md 五节、每验一步更新、换上下文的五个信号、交接与新会话开场白、同一项 3 次无进展就停。不再需要命中才加载正文。
 - 人设 19 行 → 27 行，1041 字 → 1454 字（每轮多约 140 token）。
 - 重新生成 `cordis.patch.yml`。

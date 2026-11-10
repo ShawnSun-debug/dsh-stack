@@ -1,4 +1,4 @@
-dsh-convenient-mode 0.10.0 —— Engineer mode 插件
+dsh-engineer-mode 0.10.0 —— Engineer mode 插件
 =========================================
 
 这个插件给 DSH 内核加一个 agent 模式：每轮注入三层规则（9 条每轮必守 + 1 行 ledger + ds-context-reset 常驻块
@@ -17,10 +17,10 @@ dsh-convenient-mode 0.10.0 —— Engineer mode 插件
 
 装法 B（没有 node）
 -------------------
-1. 把整个目录复制到 <profile>/node_modules/dsh-convenient-mode
+1. 把整个目录复制到 <profile>/node_modules/dsh-engineer-mode
 2. 编辑 <profile>/package.json：
-   dependencies 里加   "dsh-convenient-mode": "file:<该目录的绝对路径>"
-   dsh.profile.bundles 数组里加   "dsh-convenient-mode"
+   dependencies 里加   "dsh-engineer-mode": "file:<该目录的绝对路径>"
+   dsh.profile.bundles 数组里加   "dsh-engineer-mode"
 3. 重启 DSH
 
 ### 手机上（自己跑 DSH 内核）
@@ -38,13 +38,22 @@ dsh-convenient-mode 0.10.0 —— Engineer mode 插件
 
 **引用文件**：`@路径` 解析的是**手机内核自己**的工作区。要引用电脑上的文件，先把它们复制进手机的工作区（这个包解压进工作区即可），再写 `@<相对路径>`。含空格用 `@"..."`，目录带尾斜杠。
 
+从旧版本迁移（0.10 及以前）
+-------------------------
+0.11 换了预设 id（ds-stack -> engineer）。旧会话的日志头里记着旧 id，不迁移打不开：
+
+  node scripts/migrate-sessions.mjs          # 报告
+  node scripts/migrate-sessions.mjs --apply  # 写（先备份到 $DSH_HOME/backup-preset-migration-*）
+  # 正在写的会话被跳过；关掉 DSH 后补：
+  node scripts/migrate-sessions.mjs --apply --include-active --active-within 0
+
 装完怎么确认
 -------------
 - 先跑 node scripts/install.mjs --verify --profile <profile 名>：
   它逐条检查 profile 里是否真有依赖、bundle、node_modules 副本，以及包内 bundle 是否带规则；缺哪条会打印 FAIL 并以退出码 1 结束。
-- <profile>/package.json 的 dsh.profile.bundles 含 dsh-convenient-mode
+- <profile>/package.json 的 dsh.profile.bundles 含 dsh-engineer-mode
 - 重启后新会话的系统提示里应出现「每轮必守」与「按任务触发（命中就做）」两层
-- 守卫是否加载：跑一次 `node scripts/guard-replay.mjs` 看基线，或直接看会话里有没有 `ds-stack-guard` 来源的提醒
+- 守卫是否加载：跑一次 `node scripts/guard-replay.mjs` 看基线，或直接看会话里有没有 `engineer-guard` 来源的提醒
 - 模式列表里没有「Engineer mode」时，先确认上面两处真的写进去了，再看 DSH 日志
 - 设计说明与 29 条映射：docs/mapping.md；版本变更：CHANGELOG.md
 

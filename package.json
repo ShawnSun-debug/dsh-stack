@@ -1,6 +1,6 @@
 {
-  "name": "dsh-convenient-mode",
-  "version": "0.10.0",
+  "name": "dsh-engineer-mode",
+  "version": "0.11.0",
   "description": "Engineer mode：29 个 ds-* 技能进预设（含 PROGRESS.md 换上下文常驻块）、5 条守卫、意图路由与推理强度路由，自带 dsh-go 界面。",
   "type": "module",
   "main": "lib/index.js",
@@ -21,6 +21,7 @@
     "README.md",
     "test",
     "scripts/guard-replay.mjs",
+    "scripts/migrate-sessions.mjs",
     "docs/mapping.md",
     "CHANGELOG.md",
     "presets",
@@ -50,7 +51,7 @@
   },
   "keywords": [
     "dsh",
-    "ds-stack",
+    "engineer-mode",
     "agent-preset",
     "skills",
     "dsh-go"

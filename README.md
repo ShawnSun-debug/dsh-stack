@@ -26,11 +26,12 @@
 
 | 文件 | 作用 |
 |---|---|
-| [cordis.patch.yml](cordis.patch.yml) | bundle 层：由 [scripts/build-bundle.mjs](scripts/build-bundle.mjs) 从官方 **ptc** 预设生成，插入 `preset-ds-stack` |
+| [cordis.patch.yml](cordis.patch.yml) | bundle 层：由 [scripts/build-bundle.mjs](scripts/build-bundle.mjs) 从官方 **ptc** 预设生成，插入 `preset-engineer` |
 | [lib/index.js](lib/index.js) | 技能 provider：`inject: ["skills"]`，注册 `assets/skills/*/SKILL.md`，rank 600；装上守卫 |
 | [lib/guard.js](lib/guard.js) | 守卫：`agent/pre-step` 前置提醒 + `agent/turn-stopping` 兜底 |
-| [test/guard.test.mjs](test/guard.test.mjs) | 守卫的 26 个用例（`npm test`） |
+| [test/guard.test.mjs](test/guard.test.mjs) | 守卫与路由的 45 个用例（`npm test`） |
 | [scripts/guard-replay.mjs](scripts/guard-replay.mjs) | 按步回放真实会话，量每条规则会响几次（`npm run replay`） |
+| [scripts/migrate-sessions.mjs](scripts/migrate-sessions.mjs) | 把会话里记录的旧预设 id 迁到新 id（先备份，默认 dry-run） |
 | [assets/skills/](assets/skills) | 8 个常驻技能 |
 | [presets/persona.txt](presets/persona.txt) | 模式人设 + 自动触发规则，每轮注入 |
 | [skills.manifest.json](skills.manifest.json) | 8 条 sha256 + 21 个不常驻项 + 优先级阶梯 |
@@ -46,7 +47,7 @@ node scripts/install.mjs --apply  --profile <名字>  # 注册到某个 profile
 node scripts/install.mjs --remove --profile <名字>  # 撤销
 ```
 
-`--apply` 写三处（各留 `.bak-<时间戳>`）：profile 的 `package.json` 依赖、`dsh.profile.bundles`、`node_modules/dsh-convenient-mode` 链接（Windows 建 junction，其它平台复制目录）。重启 DSH，在模式选择里选「Engineer mode」。
+`--apply` 写三处（各留 `.bak-<时间戳>`）：profile 的 `package.json` 依赖、`dsh.profile.bundles`、`node_modules/dsh-engineer-mode` 链接（Windows 建 junction，其它平台复制目录）。重启 DSH，在模式选择里选「Engineer mode」。
 
 ## 搬到另一台机器 / 手机
 
@@ -61,6 +62,21 @@ node scripts/install.mjs --remove --profile <名字>  # 撤销
 **目标机器自己跑 DSH 内核（例如手机）时，多一步**：先 `node scripts/build-bundle.mjs` 用**那台机器**的基底预设重新生成 `cordis.patch.yml`（脚本会自己找 DSH 安装根，找不到就打印候选并提示用 `DSH_APP_ROOT` 指过去），再装。电脑上生成的 patch 直接搬过去，版本不一致时可能引用不存在的插件行。
 
 工作区不共享：`@路径` 解析的是目标机器自己的工作区，要引用别处的文件，先复制进去。
+
+## 从旧版本迁移（0.10 及以前叫 ds-stack / dsh-convenient-mode）
+
+0.11 把预设 id 从 `ds-stack` 改成了 `engineer`，旧会话的日志头里还记着旧 id，DSH 对不认识的预设会报 `agent-preset/not-found`。迁移脚本重写会话头与投影缓存：
+
+```bash
+node scripts/migrate-sessions.mjs                    # 只报告，不写
+node scripts/migrate-sessions.mjs --apply            # 写前备份到 $DSH_HOME/backup-preset-migration-<时间戳>/
+```
+
+正在被 App 写的会话默认跳过（mtime 10 分钟内）。关掉 DSH 后补跑一次：
+
+```bash
+node scripts/migrate-sessions.mjs --apply --include-active --active-within 0
+```
 
 ## 手机界面（dsh-go）
 
@@ -111,7 +127,7 @@ persona 的规则是散文，长会话里会漂。守卫在两个点上看本回
 
 五条规则：改了非文档文件却没有成功的检查（ds-verify-loop）；连续 2 次工具调用失败（ds-unstick）；本回合真推送 / 开了 PR（ds-blast-radius + ds-pr，临时仓库探针不算）；一轮成功改了 6 个以上代码文件（ds-plan-loop，文档和配置成批写不算）；会话很长却没写过 PROGRESS.md（ds-context-reset，每会话一次，走独立通道，不占回合预算）。前四条每回合最多 2 条。
 
-提醒会带上具体命令（按文件类型推断）；每命中一条，守卫往 `$DSH_HOME/dsh-convenient-mode/guard.log` 追加一行 JSON，不用翻压缩会话就能看它吵不吵。
+提醒会带上具体命令（按文件类型推断）；每命中一条，守卫往 `$DSH_HOME/dsh-engineer-mode/guard.log` 追加一行 JSON，不用翻压缩会话就能看它吵不吵。
 
 先量再改：`npm run replay` 会把一个真实会话按步回放，输出每条规则会响几次；`node scripts/guard-replay.mjs --all` 跑全部历史会话。改动规则前先看这个数。
 

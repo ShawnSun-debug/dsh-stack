@@ -21,7 +21,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(dirname(fileURLToPath(import.meta.url)));
-const PKG_NAME = "dsh-convenient-mode";
+const PKG_NAME = "dsh-engineer-mode";
 const LEGACY_BEGIN = "# >>> dsh-stack (managed by dsh-stack/scripts/install.mjs) >>>";
 const LEGACY_END = "# <<< dsh-stack <<<";
 const SKILLS_DIR = join(HERE, "assets", "skills");
@@ -127,7 +127,7 @@ if (mode === "--verify") {
   const patch = join(HERE, "cordis.patch.yml");
   if (existsSync(patch)) {
     const text = readFileSync(patch, "utf8");
-    say(text.includes("preset-ds-stack"), "bundle patch has preset-ds-stack");
+    say(text.includes("preset-engineer"), "bundle patch has preset-engineer");
     say(text.includes("自动触发"), "bundle patch carries the auto-trigger rules");
   } else say(false, "bundle patch missing", patch);
   console.log("");

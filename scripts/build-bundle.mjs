@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * 生成插件自带的 bundle 层：./cordis.patch.yml（一个 - insert: 里只有一行 preset）
- *   preset-ds-stack —— 「Engineer mode」，其 plugins 里带 skill-ds-stack（8 个常驻技能 + 自动触发规则）。
+ *   preset-engineer —— 「Engineer mode」，其 plugins 里带 skill-engineer（8 个常驻技能 + 自动触发规则）。
  *
  * 基底默认用官方 ptc 预设（含 code_run / code_tools_* 这套），可用 DS_STACK_BASE 切回 standard 等：
  *   DS_STACK_BASE=standard node scripts/build-bundle.mjs
@@ -77,11 +77,11 @@ const sub = (text, from, to, label) => {
 
 // 1) 行 id
 const rowFrom = "    - id: preset-" + BASE + "\n";
-const rowTo = "    - id: preset-ds-stack\n";
+const rowTo = "    - id: preset-engineer\n";
 // 2) config.id -> id + name + description
 const idFrom = "        id: " + BASE + "\n";
 const idTo = [
-  "        id: ds-stack",
+  "        id: engineer",
   "        name: Engineer mode",
   "        description: 8 个常驻 ds-* 技能 + 自动触发规则（修 bug→tdd/verify-loop，结构改动→grill/blueprint，审视→jury）+ 复述/先读后改/证据优先的工作纪律 + PROGRESS.md 换上下文（基底 " + BASE + "）。",
   "",
@@ -100,7 +100,7 @@ const personaTo = "              prefix: |-\n" + persona.split("\n").map((l) => 
 const skillFrom = "          - id: skill-filesystem\n            name: '@deepseek-ai/dsh-skill-filesystem'\n";
 // 行里写的模块名必须等于包名，否则加载器解析不到（改名时最容易漏的一处）。
 const PKG_NAME = JSON.parse(readFileSync(join(HERE, "package.json"), "utf8")).name;
-const skillTo = skillFrom + "          - id: skill-ds-stack\n            name: " + PKG_NAME + "\n";
+const skillTo = skillFrom + "          - id: skill-engineer\n            name: " + PKG_NAME + "\n";
 
 let body = sub(base, rowFrom, rowTo, "row id");
 body = sub(body, idFrom, idTo, "config id");
@@ -119,7 +119,7 @@ const reversed = output
 if (reversed !== base) throw new Error("round-trip check failed: output does not reverse to " + BASE);
 
 console.log("app root: " + APP);
-console.log("base: " + BASE + " | rows: preset-ds-stack(+skill-ds-stack) | order: " + ORDER + " | persona lines: " + persona.split("\n").length);
+console.log("base: " + BASE + " | rows: preset-engineer(+skill-engineer) | order: " + ORDER + " | persona lines: " + persona.split("\n").length);
 console.log("round-trip: ok");
 if (process.argv.includes("--check")) { console.log("check: nothing written"); process.exit(0); }
 writeFileSync(OUT, output);

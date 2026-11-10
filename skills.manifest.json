@@ -1,5 +1,5 @@
 {
-  "purpose": "resident skill baseline for the ds-stack pack: keeps a chosen subset present in a profile regardless of what ~/.agents/skills contains, and carries the mode's auto-trigger rules.",
+  "purpose": "resident skill baseline for the engineer-mode pack: keeps a chosen subset present in a profile regardless of what ~/.agents/skills contains, and carries the mode's auto-trigger rules.",
   "source": "aicodeking/deepseek-stack (github), upstream snapshot installed 2026-11-02",
   "curated": "2026-11-03: 29 -> 16 -> 8 (general work discipline only).",
   "curatedBodies": "2026-11-03 (second pass): descriptions <=180, bodies <=2000; detail for ds-mode / ds-plan-loop / ds-unstick moved to each skill's references/.",
