@@ -2,24 +2,25 @@
 
 一个 DSH 插件，做三件事：
 
-1. **「DS Stack 模式」agent preset** —— 在官方 `ptc` 预设上加一层：工作纪律人设 + 自动触发规则。
+1. **「Engineer mode」agent preset** —— 在官方 `ptc` 预设上加一层：工作纪律人设 + 自动触发规则。
 2. **8 个常驻 ds-* 技能** —— 作为技能 provider 注册（rank 600），散装副本缺失时兜底。
 3. **守卫** —— 把两条最容易漂的规则变成机制：改完没验证、同一修法连错两次。
 4. **一套可搬走的安装器** —— 复制目录 + 跑一条命令，重启即生效；不写注册表，不改系统。
 
 ## 它每轮注入什么
 
-`presets/persona.txt` 的全文会作为 system prompt 前缀注入每一轮。现在是两层：
+`presets/persona.txt` 的全文会作为 system prompt 前缀注入每一轮。现在是三层：
 
 | 层 | 条数 | 内容 | 谁执行 |
 |---|---|---|---|
-| 每轮必守 | 10 条（覆盖 15 个技能）| ds-mode / ds-verify-loop / ds-tdd / ds-unstick / ds-blueprint / ds-explain / ds-unslop / ds-plan-loop / ds-context-reset / ds-ledger / ds-blast-radius / ds-principles / ds-lessons / ds-sharpen / grill | 模型，每轮都在眼前 |
+| 每轮必守 | 9 条 + 1 行 ledger（覆盖 14 个技能）| ds-mode / ds-verify-loop / ds-tdd / ds-unstick / ds-blueprint / ds-explain / ds-unslop / ds-plan-loop / ds-blast-radius / ds-principles / ds-lessons / ds-sharpen / grill / ds-ledger | 模型，每轮都在眼前 |
+| 长任务状态外置（常驻块） | 5 条（ds-context-reset 正文）| PROGRESS.md 五节、每验一步更新、换上下文信号、交接与新会话开场白、3 次无进展就停 | 模型，每轮都在眼前；守卫 context 兜底 |
 | 按任务触发 | 4 行索引 | ds-ship / ds-ready / ds-pr / ds-pr-comments / ds-watch-pr / ds-jury / ds-review-loop / ds-swarm / ds-best-of-n / ds-adopt / ds-revive / ds-catchup / ds-design / ds-design-audit / ds-help | 模型，命中即做；可机械检查的交给守卫 |
 
-29 个 ds-* 技能全部在这两层里出现过，没有只在磁盘上躺着的。人设从 512 字变成 1041 字（每轮多约 350 token）。
+29 个 ds-* 技能全部在这三层里出现过，没有只在磁盘上躺着的。人设从 512 字变成 1454 字（每轮多约 480 token）。
 ## 29 个技能都落在哪
 
-完整映射见 [docs/mapping.md](docs/mapping.md)：每轮必守的 15 个、按任务触发的 14 个、被守卫机械化的 5 条，一张表看完。
+完整映射见 [docs/mapping.md](docs/mapping.md)：每轮必守 + 常驻块的 15 个、按任务触发的 14 个、被守卫机械化的 5 条，一张表看完。
 
 ## 结构
 
@@ -45,7 +46,7 @@ node scripts/install.mjs --apply  --profile <名字>  # 注册到某个 profile
 node scripts/install.mjs --remove --profile <名字>  # 撤销
 ```
 
-`--apply` 写三处（各留 `.bak-<时间戳>`）：profile 的 `package.json` 依赖、`dsh.profile.bundles`、`node_modules/dsh-convenient-mode` 链接（Windows 建 junction，其它平台复制目录）。重启 DSH，在模式选择里选「DS Stack 模式」。
+`--apply` 写三处（各留 `.bak-<时间戳>`）：profile 的 `package.json` 依赖、`dsh.profile.bundles`、`node_modules/dsh-convenient-mode` 链接（Windows 建 junction，其它平台复制目录）。重启 DSH，在模式选择里选「Engineer mode」。
 
 ## 搬到另一台机器 / 手机
 
@@ -53,7 +54,7 @@ node scripts/install.mjs --remove --profile <名字>  # 撤销
 
 1. 把插件目录整个复制过去，放在任意位置。
 2. `node <目录>/scripts/install.mjs --apply --profile <profile 名>`
-3. 重启 DSH，选「DS Stack 模式」。
+3. 重启 DSH，选「Engineer mode」。
 
 前置条件：`grill` 技能可选（没有它时规则会退化成「一次一问、能查的自己查」）；`ds-*` 散装副本不是必需的，常驻那 8 个由本包自带。
 

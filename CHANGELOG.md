@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 0.10.0 — 2026-11-10
+
+- 模式改名：`DS Stack 模式` → `Engineer mode`（显示名、守卫提醒文案、`--verify` 提示、文档与测试断言）。机器 id 一律不动：预设 id `ds-stack`、行 id `preset-ds-stack`、`skill-ds-stack`、守卫来源 `ds-stack-guard`、包名 `dsh-convenient-mode`，已存会话的预设引用不受影响。
+- `ds-context-reset` 正文压成常驻块写进 `presets/persona.txt`：PROGRESS.md 五节、每验一步更新、换上下文的五个信号、交接与新会话开场白、同一项 3 次无进展就停。不再需要命中才加载正文。
+- 人设 19 行 → 27 行，1041 字 → 1454 字（每轮多约 140 token）。
+- 重新生成 `cordis.patch.yml`。
+
 ## 0.9.0 — 2026-11-08
 
 - 包名改为 `dsh-convenient-mode`（npm 上的 `dsh-stack` 已被他人占用，市场只认 npm 名）。仓库仍是 `ShawnSun-debug/dsh-stack`。

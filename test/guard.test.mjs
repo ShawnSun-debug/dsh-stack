@@ -435,7 +435,7 @@ test("第一步就自动按流程走，第二步不重复", async () => {
 
   const first = await preStep({ agent, step: 1, turn: 1, signal: { aborted: false } }, next);
   assert.equal(first.messages.length, 1);
-  assert.match(first.messages[0].content[0].text, /DS Stack 路由/);
+  assert.match(first.messages[0].content[0].text, /Engineer 路由/);
   assert.match(first.messages[0].content[0].text, /ds-explain/);
 
   const second = await preStep({ agent, step: 2, turn: 1, signal: { aborted: false } }, next);

@@ -3,7 +3,7 @@
 这个模式的全部内容就是这张表：每个技能要么变成每轮必守的一句话，要么变成按任务触发的索引，
 再要么被守卫做成机械检查。没有第四个去处，也没有「留在磁盘上等模型想起来」的技能。
 
-## 一、每轮必守（10 条，覆盖 15 个技能）
+## 一、每轮必守（9 条 + 1 行 ledger + 1 个常驻块，覆盖 15 个技能）
 
 写在 `presets/persona.txt`，每轮随 system prompt 注入。
 
@@ -17,7 +17,7 @@
 | ds-explain | 汇报三段：是什么 → 改了什么/怎么跑 → 为什么长这样 | 人设 |
 | ds-unslop | 短句、具体、去 AI 腔 | 人设 |
 | ds-plan-loop | 多文件先出编号计划 + 每步验收 | 人设 + 守卫 scope |
-| ds-context-reset | 长任务写 PROGRESS.md，上下文过半换场景 | 人设 + 守卫 context |
+| ds-context-reset | PROGRESS.md 五节、每验一步更新、换上下文交接与新会话开场白（整段常驻）| 人设常驻块 + 守卫 context |
 | ds-ledger | 长跑用一行一决定的 TSV | 人设 |
 | ds-blast-radius | 交付前算 diff 之外的影响面并真跑证明 | 人设 + 守卫 delivery |
 | ds-principles | 结构决策点出用了哪条原则 | 人设 |

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * 生成插件自带的 bundle 层：./cordis.patch.yml（一个 - insert: 里只有一行 preset）
- *   preset-ds-stack —— 「DS Stack 模式」，其 plugins 里带 skill-ds-stack（8 个常驻技能 + 自动触发规则）。
+ *   preset-ds-stack —— 「Engineer mode」，其 plugins 里带 skill-ds-stack（8 个常驻技能 + 自动触发规则）。
  *
  * 基底默认用官方 ptc 预设（含 code_run / code_tools_* 这套），可用 DS_STACK_BASE 切回 standard 等：
  *   DS_STACK_BASE=standard node scripts/build-bundle.mjs
@@ -82,8 +82,8 @@ const rowTo = "    - id: preset-ds-stack\n";
 const idFrom = "        id: " + BASE + "\n";
 const idTo = [
   "        id: ds-stack",
-  "        name: DS Stack 模式",
-  "        description: 8 个常驻 ds-* 技能 + 自动触发规则（修 bug→tdd/verify-loop，结构改动→grill/blueprint，审视→jury）+ 复述/先读后改/证据优先的工作纪律（基底 " + BASE + "）。",
+  "        name: Engineer mode",
+  "        description: 8 个常驻 ds-* 技能 + 自动触发规则（修 bug→tdd/verify-loop，结构改动→grill/blueprint，审视→jury）+ 复述/先读后改/证据优先的工作纪律 + PROGRESS.md 换上下文（基底 " + BASE + "）。",
   "",
 ].join("\n");
 // 3) order

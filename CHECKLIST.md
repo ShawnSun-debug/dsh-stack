@@ -1,6 +1,6 @@
 # 交付清单 —— dsh-stack
 
-一个 DSH 内核插件。装进任何 profile，选「DS Stack 模式」就生效。
+一个 DSH 内核插件。装进任何 profile，选「Engineer mode」就生效。
 
 ---
 
@@ -17,9 +17,11 @@
 
 ## 二、每轮注入的规则（29 个技能全部进来）
 
-第一层「每轮必守」10 条：复述与最小改动、先写失败测试、跑真检查、失败两次换前提、结构先定形状、证据与结论同条、汇报三段式、去 AI 腔、多文件先出计划、长任务 PROGRESS.md。
+第一层「每轮必守」9 条 + 1 行 ledger：复述与最小改动、先写失败测试、跑真检查、失败两次换前提、结构先定形状、证据与结论同条、汇报三段式、去 AI 腔、多文件先出计划；长跑用一行一决定的 TSV。
 
-第二层「按任务触发」4 行索引：发出去（ship/ready/pr/pr-comments/watch-pr）、多人看（jury/review-loop）、并行与赌错（swarm/best-of-n）、接手与状态（adopt/revive/catchup）。
+第二层是 ds-context-reset 的常驻块：PROGRESS.md 五节怎么写、每验一步更新、换上下文的信号、交接与新会话开场白、同一项 3 次无进展就停。
+
+第三层「按任务触发」4 行索引：发出去（ship/ready/pr/pr-comments/watch-pr）、多人看（jury/review-loop）、并行与赌错（swarm/best-of-n）、接手与状态（adopt/revive/catchup）。
 
 守卫再把能机械检查的部分接住：缺证据、连续失败、真推送后、代码文件改太多（6 个以上，文档不算）、长会话没写 PROGRESS.md（每会话一次，独立通道）。每次命中都会追加一行到 $DSH_HOME/dsh-convenient-mode/guard.log。规则改动前先用 scripts/guard-replay.mjs 量一遍历史会话（71 回合的基线：unstick 1、evidence 9、delivery 7、scope 18、context 3）。
 ## 三、它提供的技能（8 个常驻；模式一共引用 29 个）
@@ -69,7 +71,7 @@ node scripts/install.mjs --apply --profile superagent
 3. `node <目录>/scripts/install.mjs --check` → 应报 `resident skills: 8`
 4. `node <目录>/scripts/install.mjs --apply --profile <profile 名>`
 5. `node <目录>/scripts/install.mjs --verify --profile <profile 名>` → 应全 PASS、最后一行 `verify: ok`
-6. 重启 DSH → 模式选择里选「DS Stack 模式」。
+6. 重启 DSH → 模式选择里选「Engineer mode」。
 
 没有符号链接权限的平台（部分移动端）会自动退化成复制目录，安装器会打印用的是哪一档。
 
@@ -92,7 +94,7 @@ node scripts/build-bundle.mjs --check
 2. 编辑 `<profile>/package.json`：
    - `dependencies` 里加 `"dsh-convenient-mode": "file:<复制过去的绝对路径>"`（用 link: 也行，取决于包管理器）；
    - `dsh.profile.bundles` 数组里加一项 `"dsh-convenient-mode"`。
-3. 重启 DSH，模式选择里应出现「DS Stack 模式」。
+3. 重启 DSH，模式选择里应出现「Engineer mode」。
 
 ## 六、本机验证记录（2026-11-08，插件版本 0.5.0）
 
@@ -104,7 +106,7 @@ node scripts/build-bundle.mjs --check
 | 安装器语法 | `node --check scripts/install.mjs` | ok |
 | 规则是否真的进了 bundle | 对 `cordis.patch.yml` 做 5 条字符串断言 | 全部命中 |
 | 装后核对（目标机器用） | `--verify --profile demo`（临时 profile，装前/装后/卸后各跑一次） | 装前 3 条 FAIL、装后全 PASS、卸后回到 FAIL，退出码 1/0/1 |
-| bundle 是合法 YAML | 用 `yaml` 包解析 `cordis.patch.yml` | 顶层数组；`preset-ds-stack` 的 `id=ds-stack`、`name=DS Stack 模式`；24 个 plugin 行；`skill-ds-stack` 行在；persona 19 行（10 条必守 + 4 行索引）。已随 0.5.0 复核。`!!js` 标签报警是基底预设自带的，DSH 加载器认识它 |
+| bundle 是合法 YAML | 用 `yaml` 包解析 `cordis.patch.yml` | 顶层数组；`preset-ds-stack` 的 `id=ds-stack`、`name=Engineer mode`；24 个 plugin 行；`skill-ds-stack` 行在；persona 27 行（9 条必守 + 1 行 ledger + 5 条常驻块 + 4 行索引）。已随 0.10.0 复核。`!!js` 标签报警是基底预设自带的，DSH 加载器认识它 |
 | 干净 profile 安装 | 临时 profile + 独立 `USERPROFILE` 跑 `--apply` | 依赖写成 `link:`、bundle 注册、junction 建成、profile 留 `.bak-` |
 | 干净 profile 卸载 | 同一 profile 跑 `--remove` | 依赖、bundle、链接全部回滚 |
 | 无符号链接的平台 | `DS_STACK_NO_SYMLINK=1` 强制退化 | 打印 `symlink failed (NO_SYMLINK), copied the folder instead`，复制 10 个条目，`--remove` 能删掉复制目录 |

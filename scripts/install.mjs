@@ -131,7 +131,7 @@ if (mode === "--verify") {
     say(text.includes("自动触发"), "bundle patch carries the auto-trigger rules");
   } else say(false, "bundle patch missing", patch);
   console.log("");
-  console.log(fails.length ? "verify: FAILED — " + fails.join(", ") : "verify: ok — restart DSH, then pick 「DS Stack 模式」");
+  console.log(fails.length ? "verify: FAILED — " + fails.join(", ") : "verify: ok — restart DSH, then pick 「Engineer mode」");
   process.exit(fails.length ? 1 : 0);
 }
 if (mode !== "--apply" && mode !== "--remove") {

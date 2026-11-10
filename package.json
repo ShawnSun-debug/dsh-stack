@@ -1,7 +1,7 @@
 {
   "name": "dsh-convenient-mode",
-  "version": "0.9.0",
-  "description": "DS Stack 模式：29 个 ds-* 技能进预设、5 条守卫、意图路由与推理强度路由，自带 dsh-go 界面。",
+  "version": "0.10.0",
+  "description": "Engineer mode：29 个 ds-* 技能进预设（含 PROGRESS.md 换上下文常驻块）、5 条守卫、意图路由与推理强度路由，自带 dsh-go 界面。",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -27,7 +27,6 @@
     "ui"
   ],
   "license": "MIT",
-  "private": true,
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
